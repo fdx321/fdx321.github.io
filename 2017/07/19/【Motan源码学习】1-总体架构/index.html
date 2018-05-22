@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>【Motan源码学习】1-总体架构 | 谢晞鸣的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="【Motan源码学习】系列，不搞大而虚的架构，还是会继续深入源码，剖析RPC框架的内幕，会尝试总结出一些好的系统设计，尝试带着问题去看源码。搞这个系列最主要的目的是驱动自己认真的读源码。虽然说不搞大而虚的架构，但脑子里还是需要一幅大图的. 看过 Tomcat 源码之后深有体会，刚开始掌握大概流程和整体架构，然后一步步深入，搞懂图中的每个组件。 简介Motan 是微博研发并开源的 Java 的 RP">
+<meta name="keywords" content="Java,Motan">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Motan源码学习】1-总体架构">
+<meta property="og:url" content="http://yoursite.com/2017/07/19/【Motan源码学习】1-总体架构/index.html">
+<meta property="og:site_name" content="谢晞鸣的博客">
+<meta property="og:description" content="【Motan源码学习】系列，不搞大而虚的架构，还是会继续深入源码，剖析RPC框架的内幕，会尝试总结出一些好的系统设计，尝试带着问题去看源码。搞这个系列最主要的目的是驱动自己认真的读源码。虽然说不搞大而虚的架构，但脑子里还是需要一幅大图的. 看过 Tomcat 源码之后深有体会，刚开始掌握大概流程和整体架构，然后一步步深入，搞懂图中的每个组件。 简介Motan 是微博研发并开源的 Java 的 RP">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/【Motan源码学习】1-总体架构_2.jpg">
+<meta property="og:image" content="http://yoursite.com/images/【Motan源码学习】1-总体架构_1.png">
+<meta property="og:image" content="http://yoursite.com/images/【Motan源码学习】1-总体架构_3.png">
+<meta property="og:updated_time" content="2018-05-20T02:18:02.253Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Motan源码学习】1-总体架构">
+<meta name="twitter:description" content="【Motan源码学习】系列，不搞大而虚的架构，还是会继续深入源码，剖析RPC框架的内幕，会尝试总结出一些好的系统设计，尝试带着问题去看源码。搞这个系列最主要的目的是驱动自己认真的读源码。虽然说不搞大而虚的架构，但脑子里还是需要一幅大图的. 看过 Tomcat 源码之后深有体会，刚开始掌握大概流程和整体架构，然后一步步深入，搞懂图中的每个组件。 简介Motan 是微博研发并开源的 Java 的 RP">
+<meta name="twitter:image" content="http://yoursite.com/images/【Motan源码学习】1-总体架构_2.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="谢晞鸣的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+  <script>AV.initialize("t0oo3lf98OPPpD4kenk6vFYf-gzGzoHsz", "FtwKfgFgc5fELEvKhCGUmBBO");</script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">小谢</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+					        
+								<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+					        
+								<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcetMQ/" style="font-size: 10px;">RokcetMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://nba.hupu.com/">虎扑篮球</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://blog.jobbole.com/">伯乐在线</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.importnew.com/">ImportNew</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">某互联网金融公司资浅工程师.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">小谢</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">小谢</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+			        
+						<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+			        
+						<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-【Motan源码学习】1-总体架构" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/19/【Motan源码学习】1-总体架构/" class="article-date">
+  	<time datetime="2017-07-19T07:26:56.000Z" itemprop="datePublished">2017-07-19</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【Motan源码学习】1-总体架构
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Motan/">Motan</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>【Motan源码学习】系列，不搞大而虚的架构，还是会继续深入源码，剖析RPC框架的内幕，会尝试总结出一些好的系统设计，尝试带着问题去看源码。搞这个系列最主要的目的是驱动自己认真的读源码。虽然说不搞大而虚的架构，但脑子里还是需要一幅大图的. 看过 Tomcat 源码之后深有体会，刚开始掌握大概流程和整体架构，然后一步步深入，搞懂图中的每个组件。</p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a><strong>简介</strong></h3><p>Motan 是微博研发并开源的 Java 的 RPC 框架，项目地址：<a href="https://github.com/weibocom/motan" target="_blank" rel="noopener">https://github.com/weibocom/motan</a>. 我将在 0.3.1 版本上开始源码的学习。（为什么你不去看 dubbo 呢？dubbo 虽然很屌，除了阿里，在国内很多其他互联网公司也都用它。然。。。我大概过了一遍两个项目，觉得 Motan 更小而美一点，可能看源码的门槛低一点吧）<br><a id="more"></a></p>
+<h3 id="Motan的使用"><a href="#Motan的使用" class="headerlink" title="Motan的使用"></a><strong>Motan的使用</strong></h3><p><a href="https://github.com/weibocom/motan/wiki/zh_quickstart" target="_blank" rel="noopener">Motan 快速入门</a>. 如果你之前有过 RPC 的使用经验，看这份文档应该很轻松的。</p>
+<h3 id="Motan的架构"><a href="#Motan的架构" class="headerlink" title="Motan的架构"></a><strong>Motan的架构</strong></h3><p><a href="https://github.com/weibocom/motan/wiki/zh_userguide" target="_blank" rel="noopener">Motan 用户指南</a>里有简单的介绍.<br><img src="/images/【Motan源码学习】1-总体架构_2.jpg" alt="400"><br>这是RPC框架最最抽象的模型了，服务提供者 将自己的服务注册到注册中心（包括服务提供者的IP，端口，接口等信息），服务使用者订阅注册中心（需要的时候可以主动去注册中心查，也可以接收注册中心的通知）. 通过注册中心，服务使用者就可以拿到服务提供者暴露的服务，然后直接call了。</p>
+<p><img src="/images/【Motan源码学习】1-总体架构_1.png" alt="450"><br>这是我理解的 Motan 的主要架构，随着后面深入，我可能会进一步完善这张图。下面我会一层层分析这张图，然后决定我接下来要去看哪些东西。</p>
+<p><strong>1. Config</strong><br>配置层，负责解析服务暴露、服务引用的一些配置，支持 XML 方式的配置，Annotation的配置，以及通过API自己手动编程方式的配置.<br><strong>2. Proxy</strong><br>这一层只有服务使用者才会用到。我们都很习惯 object.func(xxx,yyy) 这种方式的接口调用. 当接口调用方和提供方在一个JVM进程里，这很简单。但是当两者属于两个不同的应用、部署在不同的机器上时，我们就必须写一堆代码去完成这个调用，RPC 框架为了让这一堆代码对我们透明，整了一个Proxy层，使用动态代理的技术让服务调用和object.func(xxx,yyy)一样简单。<br><strong>3. Registry</strong><br>这一层完成服务的注册和发现，Motan 支持 consul 和 zookeeper 两种注册中心，使用的时候引用不同的依赖就可以了。Motan 使用 SPI 机制很好的支持这部分的扩展，可以很简单的使用其它注册中心。<br><strong>4. Cluster</strong><br>这部分也是只有服务使用者才会用到，主要做 HA 和 LoadBalance. 默认支持 Fail-Over 和 Fail-Fast 两种 HA 策略，LoadBalance 策略则有 一致性哈希/随机/本地服务优先/可配置权重/Round robin. HA 和 LoadBalance 的策略也是可扩展的，用户可以通过 SPI 机制加入自己需要的策略。<br><strong>5. Protocal</strong><br>协议层，默认支持 motan （即默认的rpc）和 injvm 两种, injvm 是指服务使用者和服务提供者在一个JVM进程里，即本地调用。Yar（给PHP做的RPC扩展） 和 Restful 则是在扩展里提供的。<br><strong>6. Transport</strong><br>传输层，默认使用netty。从代码结构上，这里的 Encoder（编码，即序列化）和 Decoder（解码，即反序列化）是放在 protocal 层的，且也是可扩展的，可以使用各种序列化算法。但是使用上，他们是放在 netty 的 pipeline 里的，所以我这里将它们画在了传输层。</p>
+<h3 id="Motan的工程结构"><a href="#Motan的工程结构" class="headerlink" title="Motan的工程结构"></a><strong>Motan的工程结构</strong></h3><p><img src="/images/【Motan源码学习】1-总体架构_3.png" alt="300"><br>Motan 的工程结构也很清晰：</p>
+<ul>
+<li>motan-benchmark，测性能的</li>
+<li>motan-core，RPC 的核心实现</li>
+<li>motan-demo，使用样例</li>
+<li>motan-extension，扩展</li>
+<li>motan-manager，管理后台，可用于运维和监控</li>
+<li>motan-registry-consul, consul 注册中心</li>
+<li>motan-registry-zookeeper， zookeeper注册中心</li>
+<li>motan-springsupport， Spring 集成</li>
+<li>motan-transport-netty， netty 网络通信</li>
+</ul>
+<p>前期，我主要会关注 motan-core，motan-registry-consul， motan-springsupport， motan-transport-netty 这四个 package，其他 package 不影响我研究整个RPC内幕。</p>
+<h5 id=""><a href="#" class="headerlink" title="."></a>.</h5><p><strong> 以上皆是阅读源码 <a href="https://github.com/weibocom/motan" target="_blank" rel="noopener">https://github.com/weibocom/motan</a> （tag 0.3.1）所得，文中贴的代码或配置有所删减 </strong></p>
+<style>
+img[title="300"] {
+  width:300px;
+  width:300px;
+  display: block;
+}
+img[title="400"] {
+  width:400px;
+  width:400px;
+  display: block;
+}
+img[title="450"] {
+  width:450px;
+  width:450px;
+  display: block;
+}
+img[title="500"] {
+  width:500px;
+  height:500px;
+  display: block;
+}
+</style>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/21/【Motan源码学习】2-与Spring集成/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          【Motan源码学习】2-与Spring集成
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/14/【Tomcat学习笔记】15-Connector/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">【Tomcat学习笔记】15-Connector</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="【Motan源码学习】1-总体架构" data-title="【Motan源码学习】1-总体架构" data-url="http://yoursite.com/2017/07/19/【Motan源码学习】1-总体架构/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2018 小谢
+    	</div>
+      <span id="access-count">
+      </span>
+      <div class="footer-right">
+      	<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!--page counter part-->
+<script>
+function addCount (Counter) {
+        var query1=new AV.Query(Counter);
+        query1.equalTo("url","totalCount");
+        query1.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("url","totalCount");
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+
+        url=$('.article-date').attr('href').trim();
+        title = $('.article-title').text().trim();
+        var query2=new AV.Query(Counter);
+        query2.equalTo("url",url);
+        query2.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("title",title);
+                    newcounter.set("url",url);
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+}
+$(function(){
+        var Counter=AV.Object.extend("Counter");
+        //only increse visit counting when intering a page
+        if ($('.article-title').length == 1){
+           addCount(Counter);
+         }
+
+        var query=new AV.Query(Counter);
+        query.equalTo("url","totalCount");
+        query.find({
+            success: function(results){
+              $('#access-count').text(results[0].get('time'));
+            },
+            error: function(error){
+                console.log("Error:"+error.code+" "+error.message);
+            }
+        });
+});
+</script>
+
+  </div>
+</body>
+</html>

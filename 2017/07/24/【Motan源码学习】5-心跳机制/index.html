@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>【Motan源码学习】5-心跳机制 | 谢晞鸣的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Motan的心跳机制有两种，一种是Server(或者说服务发布者)发给注册中心的，一种是Client(或者说服务引用者)发给Server的。 Server HeartBeat to Registry123456789101112131415public AbstractRegistry(URL url) &amp;#123;    this.registryUrl = url.createCopy();">
+<meta name="keywords" content="Java,Motan">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Motan源码学习】5-心跳机制">
+<meta property="og:url" content="http://yoursite.com/2017/07/24/【Motan源码学习】5-心跳机制/index.html">
+<meta property="og:site_name" content="谢晞鸣的博客">
+<meta property="og:description" content="Motan的心跳机制有两种，一种是Server(或者说服务发布者)发给注册中心的，一种是Client(或者说服务引用者)发给Server的。 Server HeartBeat to Registry123456789101112131415public AbstractRegistry(URL url) &amp;#123;    this.registryUrl = url.createCopy();">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/【Motan源码学习】5-心跳机制-1.jpeg">
+<meta property="og:updated_time" content="2018-05-20T02:18:02.255Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Motan源码学习】5-心跳机制">
+<meta name="twitter:description" content="Motan的心跳机制有两种，一种是Server(或者说服务发布者)发给注册中心的，一种是Client(或者说服务引用者)发给Server的。 Server HeartBeat to Registry123456789101112131415public AbstractRegistry(URL url) &amp;#123;    this.registryUrl = url.createCopy();">
+<meta name="twitter:image" content="http://yoursite.com/images/【Motan源码学习】5-心跳机制-1.jpeg">
+  
+    <link rel="alternative" href="/atom.xml" title="谢晞鸣的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+  <script>AV.initialize("t0oo3lf98OPPpD4kenk6vFYf-gzGzoHsz", "FtwKfgFgc5fELEvKhCGUmBBO");</script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">小谢</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+					        
+								<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+					        
+								<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcetMQ/" style="font-size: 10px;">RokcetMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://nba.hupu.com/">虎扑篮球</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://blog.jobbole.com/">伯乐在线</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.importnew.com/">ImportNew</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">某互联网金融公司资浅工程师.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">小谢</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">小谢</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+			        
+						<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+			        
+						<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-【Motan源码学习】5-心跳机制" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/24/【Motan源码学习】5-心跳机制/" class="article-date">
+  	<time datetime="2017-07-24T14:40:11.000Z" itemprop="datePublished">2017-07-24</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【Motan源码学习】5-心跳机制
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Motan/">Motan</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Motan的心跳机制有两种，一种是Server(或者说服务发布者)发给注册中心的，一种是Client(或者说服务引用者)发给Server的。</p>
+<h3 id="Server-HeartBeat-to-Registry"><a href="#Server-HeartBeat-to-Registry" class="headerlink" title="Server HeartBeat to Registry"></a><strong>Server HeartBeat to Registry</strong></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AbstractRegistry</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.registryUrl = url.createCopy();</span><br><span class="line">    MotanSwitcherUtil.registerSwitcherListener(MotanConstants.REGISTRY_HEARTBEAT_SWITCHER, <span class="keyword">new</span> SwitcherListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onValueChanged</span><span class="params">(String key, Boolean value)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (key != <span class="keyword">null</span> &amp;&amp; value != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (value) &#123;</span><br><span class="line">                    available(<span class="keyword">null</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    unavailable(<span class="keyword">null</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在创建Registry的时候会为REGISTRY_HEARTBEAT_SWITCHER这个开关，注册一个监听器，当开关的值发生变更的时候，执行相应的操作。<strong>这个机制是为了实现Server的预览以及优雅停机，Server跟zk等注册中心建立链接后，服务是unreachable状态，此时并不会真正对外提供服务。可以在unreachable状态下进行预览，确认服务正常后，在打开心跳开关，正式提供服务。服务下线时也是先停止心跳变为unreachable状态，等确认没有client调用后就可以停止服务了。</strong><br><a id="more"></a><br><strong>1.ZK作为注册中心</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.weibo.api.motan.registry.zookeeper.ZookeeperRegistry</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doRegister</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        serverLock.lock();</span><br><span class="line">        <span class="comment">// 防止旧节点未正常注销</span></span><br><span class="line">        removeNode(url, ZkNodeType.AVAILABLE_SERVER);</span><br><span class="line">        removeNode(url, ZkNodeType.UNAVAILABLE_SERVER);</span><br><span class="line">        createNode(url, ZkNodeType.UNAVAILABLE_SERVER);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> MotanFrameworkException(String.format(<span class="string">"Failed to register %s to zookeeper(%s), cause: %s"</span>, url, getUrl(), e.getMessage()), e);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        serverLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doAvailable</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        serverLock.lock();</span><br><span class="line">        <span class="keyword">if</span> (url == <span class="keyword">null</span>) &#123;</span><br><span class="line">            availableServices.addAll(getRegisteredServiceUrls());</span><br><span class="line">            <span class="keyword">for</span> (URL u : getRegisteredServiceUrls()) &#123;</span><br><span class="line">                removeNode(u, ZkNodeType.AVAILABLE_SERVER);</span><br><span class="line">                removeNode(u, ZkNodeType.UNAVAILABLE_SERVER);</span><br><span class="line">                createNode(u, ZkNodeType.AVAILABLE_SERVER);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            availableServices.add(url);</span><br><span class="line">            removeNode(url, ZkNodeType.AVAILABLE_SERVER);</span><br><span class="line">            removeNode(url, ZkNodeType.UNAVAILABLE_SERVER);</span><br><span class="line">            createNode(url, ZkNodeType.AVAILABLE_SERVER);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        serverLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注册服务的时候（doRegister）, 可以看到创建的Node是Unavailable的（createNode(url, ZkNodeType.UNAVAILABLE_SERVER)）. 当REGISTRY_HEARTBEAT_SWITCHER 这个开发打开的时候，会让该服务生效(doAvailable). 这个过程叫 HEARTBEAT 似乎不太合适，叫开关好像更合理，因为并没有一个线程按照一定的频率发送heartbeat message.</p>
+<p><strong>2.Consul作为注册中心</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.weibo.api.motan.registry.consul.ConsulRegistry</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doRegister</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    ConsulService service = ConsulUtils.buildService(url);</span><br><span class="line">    client.registerService(service);</span><br><span class="line">    heartbeatManager.addHeartbeatServcieId(service.getId());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doAvailable</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (url == <span class="keyword">null</span>) &#123;</span><br><span class="line">        heartbeatManager.setHeartbeatOpen(<span class="keyword">true</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException(<span class="string">"Command consul registry not support available by urls yet"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注册服务的时候（doRegister），会在heartbeatManager中添加该服务的Id, 当REGISTRY_HEARTBEAT_SWITCHER 这个开发打开的时候，会让HeartbeatManager开始工作。接下来看看HeartbeatManager是如何工作的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.weibo.api.motan.registry.consul.ConsulHeartbeatManager#start</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  heartbeatExecutor.scheduleAtFixedRate(</span><br><span class="line">  	<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">  	  <span class="meta">@Override</span></span><br><span class="line">  	  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  	  	<span class="keyword">try</span> &#123;</span><br><span class="line">  	  	  <span class="keyword">boolean</span> switcherStatus = isHeartbeatOpen();</span><br><span class="line">  	  	  <span class="keyword">if</span> (isSwitcherChange(switcherStatus)) &#123; <span class="comment">// 心跳开关状态变更</span></span><br><span class="line">  	  	  	processHeartbeat(switcherStatus);</span><br><span class="line">  	  	  &#125; <span class="keyword">else</span> &#123;<span class="comment">// 心跳开关状态未变更</span></span><br><span class="line">  	  	  	<span class="keyword">if</span> (switcherStatus) &#123;<span class="comment">// 开关为开启状态，则连续检测超过MAX_SWITCHER_CHECK_TIMES次发送一次心跳</span></span><br><span class="line">  	  	  	  switcherCheckTimes++;</span><br><span class="line">  	  	  	  <span class="keyword">if</span> (switcherCheckTimes &gt;= ConsulConstants.MAX_SWITCHER_CHECK_TIMES) &#123;</span><br><span class="line">  	  	  	  	processHeartbeat(<span class="keyword">true</span>);</span><br><span class="line">  	  	  	  	switcherCheckTimes = <span class="number">0</span>;</span><br><span class="line">  	  	  	  &#125;</span><br><span class="line">  	  	  	&#125;</span><br><span class="line">  	  	  &#125;</span><br><span class="line">  	  	&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">  	  	  LoggerUtil.error(<span class="string">"consul heartbeat executor err:"</span>, e);</span><br><span class="line">  	  	&#125;</span><br><span class="line">  	  &#125;</span><br><span class="line">  	&#125;, </span><br><span class="line">   ConsulConstants.SWITCHER_CHECK_CIRCLE, ConsulConstants.SWITCHER_CHECK_CIRCLE, TimeUnit.MILLISECONDS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>ConsulHeartbeatManager 里会有一个线程专门处理心跳，如果REGISTRY_HEARTBEAT_SWITCHER发生变更，就立刻checkPass/checkFail. 其他情况就按一定的频率去发心跳包。</p>
+<h3 id="Client-HeartBeat-to-Server"><a href="#Client-HeartBeat-to-Server" class="headerlink" title="Client HeartBeat to Server"></a><strong>Client HeartBeat to Server</strong></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.weibo.api.motan.transport.support.AbstractEndpointFactory</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AbstractEndpointFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    heartbeatClientEndpointManager = <span class="keyword">new</span> HeartbeatClientEndpointManager();</span><br><span class="line">    heartbeatClientEndpointManager.init();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>EndpointFactory 用于创建 NettyServer 和 NettyClient，是一个扩展点，单例的。在构造函数里会初始化一个心跳管理器。心跳管理器会按一定的频率发送heartbeat message给Server.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.weibo.api.motan.transport.support.HeartbeatClientEndpointManager#init</span></span><br><span class="line">executorService.scheduleWithFixedDelay(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">for</span> (Map.Entry&lt;Client, HeartbeatFactory&gt; entry : endpoints.entrySet()) &#123;</span><br><span class="line">        Client endpoint = entry.getKey();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="comment">// 如果节点是存活状态，那么没必要走心跳</span></span><br><span class="line">          <span class="keyword">if</span> (endpoint.isAvailable()) &#123;</span><br><span class="line">              <span class="keyword">continue</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          HeartbeatFactory factory = entry.getValue();</span><br><span class="line">          endpoint.heartbeat(factory.createRequest());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">          LoggerUtil.error(<span class="string">"HeartbeatEndpointManager send heartbeat Error: url="</span> + endpoint.getUrl().getUri(), e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;, MotanConstants.HEARTBEAT_PERIOD, MotanConstants.HEARTBEAT_PERIOD, TimeUnit.MILLISECONDS);</span><br></pre></td></tr></table></figure>
+<p>Server端会有一个message handler用来处理 heartbeat message. CreateServer的时候，会用HeartMessageHandleWrapper将原始的messageHandler装饰一下，HeartMessageHandleWrapper在收到message后，判断如果是心跳包，就直接response，否则就交给原始的handler处理。 这就是一个很好的<strong>装饰者模式</strong>使用场景啊。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// com.weibo.api.motan.transport.support.AbstractEndpointFactory#createServer</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Server <span class="title">createServer</span><span class="params">(URL url, MessageHandler messageHandler)</span> </span>&#123;</span><br><span class="line">    HeartbeatFactory heartbeatFactory = getHeartbeatFactory(url);</span><br><span class="line">    messageHandler = heartbeatFactory.wrapMessageHandler(messageHandler);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//com.weibo.api.motan.transport.support.DefaultRpcHeartbeatFactory#wrapMessageHandler</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageHandler <span class="title">wrapMessageHandler</span><span class="params">(MessageHandler handler)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> HeartMessageHandleWrapper(handler);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//com.weibo.api.motan.transport.support.DefaultRpcHeartbeatFactory.HeartMessageHandleWrapper</span></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">HeartMessageHandleWrapper</span> <span class="keyword">implements</span> <span class="title">MessageHandler</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> MessageHandler messageHandler;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HeartMessageHandleWrapper</span><span class="params">(MessageHandler messageHandler)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.messageHandler = messageHandler;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">handle</span><span class="params">(Channel channel, Object message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isHeartbeatRequest(message)) &#123;</span><br><span class="line">            DefaultResponse response = <span class="keyword">new</span> DefaultResponse();</span><br><span class="line">            response.setValue(<span class="string">"heartbeat"</span>);</span><br><span class="line">            <span class="keyword">return</span> response;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> messageHandler.handle(channel, message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="我的思考"><a href="#我的思考" class="headerlink" title="我的思考"></a><strong>我的思考</strong></h3><p><strong>1. Server HeartBeat to Registry，在使用ZK作为注册中心的时候，只是在开关状态变更的时候去通知一下ZK. 在使用Consul做为注册中心的时候，却有一个线程按照一定的频率去CheckPass, why?</strong><br>zk和consul的心跳机制是不一样的，consul不是类似zk的长链接，所以需要自己定时进行checkpass。</p>
+<p><strong>2. EndpointFactory会创建心跳管理器，不管是Server还是Client都会有线程一直run，会不会有问题？</strong><br>Server的endpoints（for (Map.Entry&lt;Client, HeartbeatFactory&gt; entry : endpoints.entrySet())）是空的，因此线程会空跑。那么对Server是否可以不创建HeartbeatEndpointManager呢。我觉得影响不大，后端绝大多数应用，即使服务引用者，也是服务发布者，再加上EndpointFactory是单例的，只有一个HeartbeatEndpointManager。</p>
+<p><strong>3. 当 Server 服务挂掉的时候，注册中心会感知到，然后就会通知各个订阅者。为什么Client 还需要发心跳包检测 Server是否OK呢？</strong><br>client心跳并不是针对server当机这种情况，而是针对server服务正常，但是client和server之间网络异常这种情况</p>
+<p>感谢作者Ray的解答<br><img src="/images/【Motan源码学习】5-心跳机制-1.jpeg" alt=""></p>
+<h5 id=""><a href="#" class="headerlink" title="."></a>.</h5><p><strong> 以上皆是阅读源码 <a href="https://github.com/weibocom/motan" target="_blank" rel="noopener">https://github.com/weibocom/motan</a> （tag 0.3.1）所得，文中贴的代码或配置有所删减 </strong></p>
+<style>
+img[title="300"] {
+  width:300px;
+  width:300px;
+  display: block;
+}
+img[title="400"] {
+  width:400px;
+  width:400px;
+  display: block;
+}
+img[title="450"] {
+  width:450px;
+  width:450px;
+  display: block;
+}
+img[title="500"] {
+  width:500px;
+  height:500px;
+  display: block;
+}
+</style>
+
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/25/【Motan源码学习】6-异步调用/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          【Motan源码学习】6-异步调用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/23/【Motan源码学习】4-服务发布和引用/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">【Motan源码学习】4-服务发布与引用</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="【Motan源码学习】5-心跳机制" data-title="【Motan源码学习】5-心跳机制" data-url="http://yoursite.com/2017/07/24/【Motan源码学习】5-心跳机制/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2018 小谢
+    	</div>
+      <span id="access-count">
+      </span>
+      <div class="footer-right">
+      	<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!--page counter part-->
+<script>
+function addCount (Counter) {
+        var query1=new AV.Query(Counter);
+        query1.equalTo("url","totalCount");
+        query1.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("url","totalCount");
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+
+        url=$('.article-date').attr('href').trim();
+        title = $('.article-title').text().trim();
+        var query2=new AV.Query(Counter);
+        query2.equalTo("url",url);
+        query2.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("title",title);
+                    newcounter.set("url",url);
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+}
+$(function(){
+        var Counter=AV.Object.extend("Counter");
+        //only increse visit counting when intering a page
+        if ($('.article-title').length == 1){
+           addCount(Counter);
+         }
+
+        var query=new AV.Query(Counter);
+        query.equalTo("url","totalCount");
+        query.find({
+            success: function(results){
+              $('#access-count').text(results[0].get('time'));
+            },
+            error: function(error){
+                console.log("Error:"+error.code+" "+error.message);
+            }
+        });
+});
+</script>
+
+  </div>
+</body>
+</html>

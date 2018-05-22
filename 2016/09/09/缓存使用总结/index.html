@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>缓存使用总结 | 谢晞鸣的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="缓存是提高系统性能的利器，我们开发中常用的就是本地缓存和分布式缓存，对于单机的、数据量不大的数据，可以用HashMap自己实现一个简单的缓存，也可以用Guava cache来实现。对于分布式缓存，现在业界常用的都是基于redis, memcached，还有阿里的tair来做的。下面总结一下使用分布式缓存的时候要考虑的问题。 更新策略 LRU/FIFO等，对数据一致性要求不高； 超时淘汰，对数据一致">
+<meta name="keywords" content="缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="缓存使用总结">
+<meta property="og:url" content="http://yoursite.com/2016/09/09/缓存使用总结/index.html">
+<meta property="og:site_name" content="谢晞鸣的博客">
+<meta property="og:description" content="缓存是提高系统性能的利器，我们开发中常用的就是本地缓存和分布式缓存，对于单机的、数据量不大的数据，可以用HashMap自己实现一个简单的缓存，也可以用Guava cache来实现。对于分布式缓存，现在业界常用的都是基于redis, memcached，还有阿里的tair来做的。下面总结一下使用分布式缓存的时候要考虑的问题。 更新策略 LRU/FIFO等，对数据一致性要求不高； 超时淘汰，对数据一致">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/缓存使用总结_1.png">
+<meta property="og:image" content="http://yoursite.com/images/缓存使用总结_2.png">
+<meta property="og:updated_time" content="2018-05-20T02:18:02.276Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="缓存使用总结">
+<meta name="twitter:description" content="缓存是提高系统性能的利器，我们开发中常用的就是本地缓存和分布式缓存，对于单机的、数据量不大的数据，可以用HashMap自己实现一个简单的缓存，也可以用Guava cache来实现。对于分布式缓存，现在业界常用的都是基于redis, memcached，还有阿里的tair来做的。下面总结一下使用分布式缓存的时候要考虑的问题。 更新策略 LRU/FIFO等，对数据一致性要求不高； 超时淘汰，对数据一致">
+<meta name="twitter:image" content="http://yoursite.com/images/缓存使用总结_1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="谢晞鸣的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+  <script>AV.initialize("t0oo3lf98OPPpD4kenk6vFYf-gzGzoHsz", "FtwKfgFgc5fELEvKhCGUmBBO");</script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">小谢</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+					        
+								<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+					        
+								<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcetMQ/" style="font-size: 10px;">RokcetMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://nba.hupu.com/">虎扑篮球</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://blog.jobbole.com/">伯乐在线</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.importnew.com/">ImportNew</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">某互联网金融公司资浅工程师.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">小谢</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">小谢</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+			        
+						<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+			        
+						<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-缓存使用总结" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/09/09/缓存使用总结/" class="article-date">
+  	<time datetime="2016-09-09T03:09:18.000Z" itemprop="datePublished">2016-09-09</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      缓存使用总结
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>缓存是提高系统性能的利器，我们开发中常用的就是本地缓存和分布式缓存，对于单机的、数据量不大的数据，可以用HashMap自己实现一个简单的缓存，也可以用Guava cache来实现。对于分布式缓存，现在业界常用的都是基于redis, memcached，还有阿里的tair来做的。下面总结一下使用分布式缓存的时候要考虑的问题。</p>
+<h4 id="更新策略"><a href="#更新策略" class="headerlink" title="更新策略"></a>更新策略</h4><ul>
+<li>LRU/FIFO等，对数据一致性要求不高；</li>
+<li>超时淘汰，对数据一致性要求也不是很高，实现简单，像redis的话，直接对key设置一个timeout就可以了；</li>
+<li>主动更新，对数据一致性要求较高。后面的总结都是针对这种主动更新来说的。<a id="more"></a></li>
+</ul>
+<h4 id="主动更新的套路"><a href="#主动更新的套路" class="headerlink" title="主动更新的套路"></a>主动更新的套路</h4><p><a href="http://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=404087915&amp;idx=1&amp;sn=075664193f334874a3fc87fd4f712ebc" target="_blank" rel="noopener">缓存架构设计细节二三事（作者：沈剑）</a> 和<a href="http://coolshell.cn/articles/17416.html" target="_blank" rel="noopener">缓存更新的套路（作者：陈皓）</a> 两篇文章都介绍了如何更新缓存。前者的结论是：</p>
+<ul>
+<li>淘汰缓存是一种通用的缓存处理方式</li>
+<li>先淘汰缓存，再写数据库的时序是毋庸置疑的</li>
+</ul>
+<p>后者则主张先写数据库再淘汰缓存，我这里对两种会遇到的情况做个总结，方便自己温故知新。</p>
+<ol>
+<li><p>先淘汰缓存，后更新数据库<br>正常情况下不会有什么问题，如果淘汰缓存成功，更新数据库失败，也仅仅会造成一次缓存没命中，查询数据库后又会将缓存更新，不会有大问题。但是如果在下面的并发情况下：<br><img src="/images/缓存使用总结_1.png" alt=""><br>正如陈皓说的：<em>两个线程，一个是写操作，另一个是读操作，写操作淘汰缓存后，读操作没有命中缓存，先把老数据读出来后放到缓存中，然后写操作更新了数据库。于是，在缓存中的数据还是老的数据，导致缓存中的数据是脏的，而且还一直这样脏下去了。</em></p>
+</li>
+<li><p>先更新数据库，后淘汰缓存<br>存在的问题：</p>
+</li>
+</ol>
+<ul>
+<li>沈剑在文中提到：<em>如果更新数据库成功，淘汰缓存失败了，那么缓存中就出现了脏数据</em></li>
+<li>如下图所示，陈皓在文中说：<em>一个是读操作，但是没有命中缓存，然后就到数据库中取数据，此时来了一个写操作，写完数据库后，让缓存失效，然后，之前的那个读操作再把老的数据放进去，所以，会造成脏数据。但，这个case理论上会出现，不过，实际上出现的概率可能非常低，因为这个条件需要发生在读缓存时缓存失效，而且并发着有一个写操作。而实际上数据库的写操作会比读操作慢得多，而且还要锁表，而读操作必需在写操作前进入数据库操作，而又要晚于写操作更新缓存，所有的这些条件都具备的概率基本并不大。</em><br><img src="/images/缓存使用总结_2.png" alt=""></li>
+</ul>
+<p>两种方案看来都有问题，都没法做到数据的强一致，如果非要强一致，就得引入分布式事务来保证写数据库和淘汰缓存在一个事务里，这样做性能又会受到影响。所以通常是用一种主动更新策略+超时淘汰来做缓存。</p>
+<h4 id="缓存会遇到的一些问题"><a href="#缓存会遇到的一些问题" class="headerlink" title="缓存会遇到的一些问题"></a>缓存会遇到的一些问题</h4><p><a href="http://carlosfu.iteye.com/blog/2269678" target="_blank" rel="noopener">缓存使用与设计系列文章</a> 对缓存使用中可能会遇到的问题做了很好的分析和总结。</p>
+<ul>
+<li>穿透问题</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>解决缓存穿透</th>
+<th>适用场景</th>
+<th>维护成本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>缓存空对象</td>
+<td>1. 数据命中不高；2. 数据频繁变化实时性高</td>
+<td>1.代码维护简单；2.需要过多的缓存空间；3. 数据不一致</td>
+</tr>
+<tr>
+<td>bloomfilter或者压缩filter提前拦截</td>
+<td>1. 数据命中不高；2. 数据相对固定实时性低</td>
+<td>1.代码维护复杂 ；2.缓存空间占用少</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>无底洞问题<br>就是缓存到了一定规模后，再加机器也没有明显的性能提升了，具体分析见<a href="http://carlosfu.iteye.com/blog/2269678" target="_blank" rel="noopener">缓存使用与设计系列文章</a></li>
+<li><p>热点key问题<br>比如key XXX对应的数据访问量特别大，但是XXX在缓存中是有失效时间的。一旦缓存失效，会有N多线程并发的去请求数据库，然后更新缓存，这个时候会导致系统压力过大。通常有这么几种解决方法：</p>
+<ol>
+<li>加锁，同时只允许一个线程去查询数据库并更新缓存</li>
+<li>缓存不加失效时间，但后台有个异步线程定期的去更新它</li>
+<li>引入类似于Hystrix的熔断机制，只允许一定量的请求去请求数据库并更新缓存</li>
+</ol>
+</li>
+<li><p>雪崩问题<br>假设系统A调用系统B，中间用redis做缓存，通常有这么几种情况会造成雪崩：</p>
+<ol>
+<li>B系统因为某种原因挂了，等B系统系统服务恢复时，cache都已经超时失效了，造成B系统过载。</li>
+<li>Cache系统故障，A系统的流量将全部流到B系统，造成B系统过载。</li>
+<li>Cache故障恢复，但这时Cache为空，Cache瞬间命中率为0，造成B系统过载。</li>
+</ol>
+<p><a href="http://tech.meituan.com/avalanche-study.html" target="_blank" rel="noopener">Cache应用中的服务过载案例研究</a>对该问题做了很详细的分析。总结一下其实就是：</p>
+<ol>
+<li>调用方在缓存没有命中时，不要每次都去调用下游系统，比如5个线程同时没有命中，可以只有一个线程去请求，其他线程等着。</li>
+<li>被调用方要做好流量控制，防止自己被压垮。</li>
+</ol>
+</li>
+</ul>
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><ul>
+<li><a href="http://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=404087915&amp;idx=1&amp;sn=075664193f334874a3fc87fd4f712ebc" target="_blank" rel="noopener">缓存架构设计细节二三事</a></li>
+<li><a href="http://coolshell.cn/articles/17416.html" target="_blank" rel="noopener">缓存更新的套路</a></li>
+<li><a href="http://carlosfu.iteye.com/blog/2269678" target="_blank" rel="noopener">缓存使用与设计系列文章</a></li>
+<li><a href="http://tech.meituan.com/avalanche-study.html" target="_blank" rel="noopener">Cache应用中的服务过载案例研究</a></li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/09/09/MySQL事务学习总结/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          MySQL事务学习总结
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/25/分布式ID/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">分布式ID</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="缓存使用总结" data-title="缓存使用总结" data-url="http://yoursite.com/2016/09/09/缓存使用总结/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2018 小谢
+    	</div>
+      <span id="access-count">
+      </span>
+      <div class="footer-right">
+      	<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!--page counter part-->
+<script>
+function addCount (Counter) {
+        var query1=new AV.Query(Counter);
+        query1.equalTo("url","totalCount");
+        query1.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("url","totalCount");
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+
+        url=$('.article-date').attr('href').trim();
+        title = $('.article-title').text().trim();
+        var query2=new AV.Query(Counter);
+        query2.equalTo("url",url);
+        query2.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("title",title);
+                    newcounter.set("url",url);
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+}
+$(function(){
+        var Counter=AV.Object.extend("Counter");
+        //only increse visit counting when intering a page
+        if ($('.article-title').length == 1){
+           addCount(Counter);
+         }
+
+        var query=new AV.Query(Counter);
+        query.equalTo("url","totalCount");
+        query.find({
+            success: function(results){
+              $('#access-count').text(results[0].get('time'));
+            },
+            error: function(error){
+                console.log("Error:"+error.code+" "+error.message);
+            }
+        });
+});
+</script>
+
+  </div>
+</body>
+</html>

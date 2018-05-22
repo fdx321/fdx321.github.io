@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>知识体系梳理 | 谢晞鸣的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="[1] Java 线程的状态 [2] 进程和线程的区别，进程之间如何通讯，线程之间如何通讯？ 进程有自己的地址空间和运行环境，他们之间的通讯其实可以理解成应用之间的通讯，可以通过管道、网络等来通讯。线程拥有更少的资源，一个进程可以有多个线程，线程之间的通讯则可以通过锁、信号量等来实现同步，可以通过共享内存的方式来实现数据的通讯。 [3]HashMap的实现原理是什么？和HashTable、C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="知识体系梳理">
+<meta property="og:url" content="http://yoursite.com/2015/10/25/知识体系梳理/index.html">
+<meta property="og:site_name" content="谢晞鸣的博客">
+<meta property="og:description" content="[1] Java 线程的状态 [2] 进程和线程的区别，进程之间如何通讯，线程之间如何通讯？ 进程有自己的地址空间和运行环境，他们之间的通讯其实可以理解成应用之间的通讯，可以通过管道、网络等来通讯。线程拥有更少的资源，一个进程可以有多个线程，线程之间的通讯则可以通过锁、信号量等来实现同步，可以通过共享内存的方式来实现数据的通讯。 [3]HashMap的实现原理是什么？和HashTable、C">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_1.png">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_2.jpg">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_3.jpg">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_4.png">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_5.png">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_6.jpg">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_7.jpg">
+<meta property="og:image" content="http://yoursite.com/images/知识体系梳理_8.png">
+<meta property="og:updated_time" content="2018-05-22T05:22:14.064Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="知识体系梳理">
+<meta name="twitter:description" content="[1] Java 线程的状态 [2] 进程和线程的区别，进程之间如何通讯，线程之间如何通讯？ 进程有自己的地址空间和运行环境，他们之间的通讯其实可以理解成应用之间的通讯，可以通过管道、网络等来通讯。线程拥有更少的资源，一个进程可以有多个线程，线程之间的通讯则可以通过锁、信号量等来实现同步，可以通过共享内存的方式来实现数据的通讯。 [3]HashMap的实现原理是什么？和HashTable、C">
+<meta name="twitter:image" content="http://yoursite.com/images/知识体系梳理_1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="谢晞鸣的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+  <script>AV.initialize("t0oo3lf98OPPpD4kenk6vFYf-gzGzoHsz", "FtwKfgFgc5fELEvKhCGUmBBO");</script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">小谢</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+					        
+								<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+					        
+								<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcetMQ/" style="font-size: 10px;">RokcetMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://nba.hupu.com/">虎扑篮球</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://blog.jobbole.com/">伯乐在线</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.importnew.com/">ImportNew</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">某互联网金融公司资浅工程师.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">小谢</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">小谢</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+			        
+						<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+			        
+						<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-知识体系梳理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/10/25/知识体系梳理/" class="article-date">
+  	<time datetime="2015-10-25T01:36:59.000Z" itemprop="datePublished">2015-10-25</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      知识体系梳理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>[1] Java 线程的状态</strong><br><img src="/images/知识体系梳理_1.png" alt="300"></p>
+<p><strong>[2] 进程和线程的区别，进程之间如何通讯，线程之间如何通讯？</strong></p>
+<p>进程有自己的地址空间和运行环境，他们之间的通讯其实可以理解成应用之间的通讯，可以通过管道、网络等来通讯。线程拥有更少的资源，一个进程可以有多个线程，线程之间的通讯则可以通过锁、信号量等来实现同步，可以通过共享内存的方式来实现数据的通讯。</p>
+<p><strong>[3]HashMap的实现原理是什么？和HashTable、ConcurrentHashMap有什么区别</strong></p>
+<p>以下的回答是基于JDK 1.8来说的。<br><a id="more"></a><br>HashMap 里有几个关键的概念，</p>
+<ul>
+<li>capacity，默认是16，也可以手动指定，但最后会被计算成2的指数倍。</li>
+<li>loadFactor，默认是0.75</li>
+<li>threadShold，阈值(capacity*loadFactor)，超过这个阈值就会做resize，resize会double Map的capacity.<br>HashMap里是用一个 Node[] 数组来存储数据的，Node 有以下几个关键的属性：hash, key, value, next.<br>put 操作的时候，根据对象的hash值找到数组下标，没有被占就直接放进去，如果有值了，就通过 next 串起来。当链表的大小超过TREEIFY_THRESHOLD的时候，会对这个链表进行树化操作，将Node 转换成 TreeNode（多了prev, left, right等属性）</li>
+</ul>
+<p>HashTable 和 HashMap 最大的区别，</p>
+<ul>
+<li>HashTable 是线程安全的，实现上就是在方法上加了 synchronized</li>
+<li>HashTable key 不予许为 null，null 的话会抛异常</li>
+<li>实现上比较简单，没有树化的操作</li>
+</ul>
+<p>ConcurrentHashMap 和 HashTable 一样是线程安全的，但 HashTable锁的粒度比较大，ConcurrentHashMap 采用的Segment，锁里的粒度是在Segment上，性能更好，</p>
+<p><strong>[4]索引</strong><br>下面的讨论不考虑考虑全文索引(MyISAM)，Hash索引，只针对B树索引，索引的实现原理，B+树：<br><img src="/images/知识体系梳理_2.jpg" alt="400"><br>了解了索引的实现原理后，在创建索引的时候，需要关注这么几个事项：</p>
+<ul>
+<li>区分度</li>
+<li>最左匹配，并不是说在写SQL的时候要按这个顺序写，而是在建索引的时候要考虑这个顺序</li>
+</ul>
+<p>聚簇索引和非聚簇索引，以及他们各自的优缺点。<br><img src="/images/知识体系梳理_3.jpg" alt="400"><br>3A索引，1. 索引全部都走到； 2. 数据全在索引上，不需要二次索引； 3. 排序字段刚好也是索引</p>
+<p><strong>[5]事务的隔离级别</strong><br>如下，但这是SQL92的标准，具体数据库的实现和这个是有出入的。能够举例说明脏读、不可重复读、幻象读等各类情况是什么意思。</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻象读</th>
+<th>第一类更新丢失</th>
+<th>第二类更新丢失</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ UNCOMMITED</td>
+<td>会</td>
+<td>会</td>
+<td>会</td>
+<td>不会</td>
+<td>会</td>
+</tr>
+<tr>
+<td>READ COMMITED</td>
+<td>不会</td>
+<td>会</td>
+<td>会</td>
+<td>不会</td>
+<td>会</td>
+</tr>
+<tr>
+<td>REPEATABLE READ</td>
+<td>不会</td>
+<td>不会</td>
+<td>会</td>
+<td>不会</td>
+<td>不会</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>不会</td>
+<td>不会</td>
+<td>不会</td>
+<td>不会</td>
+<td>不会</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[6]Spring事务的传播级别</strong><br>传播级别比较多，重点关注以下三个。能够举例（代码）说明这三种传播级别都是什么意思。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PROPAGATION_REQUIRED</td>
+<td>如果当前没有事务，就新建一个事务，如果已经存在一个事务中，加入到这个事务中。这是 最常见的选择。</td>
+</tr>
+<tr>
+<td>PROPAGATION_REQUIRES_NEW</td>
+<td>新建事务，如果当前存在事务，把当前事务挂起</td>
+</tr>
+<tr>
+<td>PROPAGATION_NESTED</td>
+<td>如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与 PROPAGATION_REQUIRED 类似的操作</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[7]一致性Hash及它的使用场景</strong><br><a href="http://blog.codinglabs.org/articles/consistent-hashing.html" target="_blank" rel="noopener">一致性哈希算法及其在分布式系统中的应用</a><br>考虑容错性、可扩展性、均衡性<br>一般用于做负载均衡，比如Motan中的cluster模块</p>
+<p><strong>[8]为什么 equals 和 hashcode要一起重写</strong><br><strong>[9]Object类有哪些方法</strong><br>equals/hashcode/clone/toString/wait/notify</p>
+<p><strong>[10]JVM内存模型</strong><br><img src="/images/知识体系梳理_4.png" alt="400"><br><strong>[11]JVM运行时数据区</strong><br><img src="/images/知识体系梳理_5.png" alt="400"><br><strong>[12]GC算法</strong><br>评价一个GC算法有以下几个标准：</p>
+<ul>
+<li>吞吐量，单位时间的处理能力</li>
+<li>最大暂停时间(Stop The World)</li>
+<li>堆使用效率</li>
+<li>访问的局部性<br>首先来看下一些经典的GC算法以及他们各自的优缺点，然后再来看JVM中的GC. 下面说的都是最基础的算法，实际的比这复杂很多很多。</li>
+<li>标记-清除<br>主要有标记、清除、合并、分配几个操作，优点是简单，缺点是碎片化，分配速度慢</li>
+<li>引用计数<br>即刻回收，最大暂停时间短，缺点就是计数复杂，计数器占用空间</li>
+<li><p>复制算法<br>分两块内存，每次GC把活得的对象copy到另一块，之前的一块直接全部干掉。<br>优点，吞吐量高（这里要思考为什么吞吐量高），没有碎片化，分配速度也快，缺点就是堆使用率低</p>
+<p>上面的GC都有各自的优缺点，分代GC就是综合几种GC算法的一种GC方式。<br><img src="/images/知识体系梳理_6.jpg" alt="500"><br>青年代使用复制算法，老年代使用标记算法，但这里存在一个问题，可能会存在<strong>跨代引用</strong>（挺多人踩过这个坑，可以关注下）的问题。</p>
+<p>JVM里这么几种垃圾收集器<br><img src="/images/知识体系梳理_7.jpg" alt="500"></p>
+</li>
+</ul>
+<p><strong>[13]标什么情况下回出现Full GC，什么情况下会出现Young GC</strong><br>Young GC</p>
+<ol>
+<li>Eden发生GC的时候</li>
+</ol>
+<p>Full GC</p>
+<ol>
+<li>System.GC()</li>
+<li>年轻代晋升到老年代，要在老年代分配空间的时候，发现空间不够时</li>
+<li>分配担保</li>
+</ol>
+<p><strong>[14]线程池</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Executor</span><br><span class="line">ExecutorService</span><br><span class="line">Executors</span><br><span class="line">Runnable</span><br><span class="line"></span><br><span class="line">newFixedThreadPool</span><br><span class="line">newSingleThreadExecutor</span><br><span class="line">newCachedThreadPool</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue,</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler)</span></span></span><br><span class="line"><span class="function">https:<span class="comment">//github.com/fdx321/gitbook_code/blob/master/jdk_1_8/concurrent/threadpoolexecutorjava.md</span></span></span><br></pre></td></tr></table></figure></p>
+<p><strong>[15]Runnable/Callable/Future/FutureTask</strong></p>
+<p><strong>[17]如何写代码让程序出现各种OOM或StackoverFlow</strong><br>首先你得知道JVM的内存布局，以及这些内存都是干什么用的。<br>HeapOutOfMemory<br>Young OutOfMemory，年轻代溢出,MaxTenuringThreshold设置的很大，让年轻代的对象永远无法晋升到老年代<br>MethodArea OutOfMemory, 用ClassLoader加载很多类<br>ConstantPool OutOfMemory<br>DirectMemory OutOfMemory<br>Stack OutOfMemory Stack OverFlow，一直递归调用</p>
+<p><strong>[18]长轮询</strong><br>为什么要使用长轮询（Push, Pull 分析各自的优缺点）、怎么实现</p>
+<p><strong>[19]几个常用的JDK命令</strong><br>jps, jstack, jmap, jconsole, jinfo, jhat, javap, …</p>
+<p><strong>[20]长连接为什么需要发心跳包？</strong></p>
+<p><strong>[21]ClassLoader</strong><br><img src="/images/知识体系梳理_8.png" alt="500"><br>双亲委派，Tomcat为啥打破双亲委派</p>
+<p><strong>[22]HTTP协议</strong><br>200 404 401 400 405 500 502<br><strong>[23]TCP协议</strong><br>三次握手、四次挥手、Time_Await、拥塞控制、超时重试、保活<br><strong>[24]数据库连接池实现原理</strong><br>看过MyBatis自带连接池、DBCP以及Druid的源码，可以总结一下他们的共同点和区别。</p>
+<p>Driver注册，然后通过 DriverManager getConnection. DataSource 主要的接口方法就是 getConnection. </p>
+<p>MyBatis 数据库连接池主要就是维护了两个Map(Active 和 Idle 的连接)，Map 里的连接是代理后的连接，这里用的是JDK的动态代理，PooledConnection 实现了 InvocationHandler，invoke 方法里会去做判断，如果是close就将真实的连接放回Map里，如果是其他方法，就直接透传。</p>
+<p>DBCP 数据库连接池，池的功能是通过commons-pool来实现的，对 JDBC 的 Connection/Statement等做了静态代理</p>
+<p>Druid，也是做了连接池，做了各种代理，但和DBCP最大的不同就是多了一层SQL Parser, 可以对SQL做各种审计、监控、filter等</p>
+<p><strong>[25]Netty线程池是怎么用的</strong><br>BIO/NIO/NIO2(AIO)<br>同步阻塞/伪异步/Reactor单线程/Reactor多线程/Reactor主从多线程</p>
+<p><strong>[26]AOP实现原理</strong></p>
+<p><strong>[27]Spring的启动过程</strong><br>web.xml里配置了ContextLoaderListener, Tomcat在启动或部署项目的过程中，会去调用该监听器，然后会去call ContextLoader#initWebApplicationContext，然后实例化 XmlWebApplicationContext，这个就是Spring的IOC容器了，然后就是去解析XML配置文件，注册BeanDefinition.</p>
+<p><strong>[28]自己开发框架如何与Spring集成</strong><br>看过MyBatis和Motan的源码，可以看看他们是如何与Spring集成的。<br><strong>MyBatis:</strong><br>实现FactoryBean接口，getObject方法。比如SqlSessionFactoryBean/MapperFactoryBean</p>
+<p><strong>Motan:</strong><br>与 Spring 集成的切入点在于，通过 motan-core 中 spring.schemas、spring.handlers 这两个配置文件指定自定义的 schema 和对应的 NamespaceHandler。NamespaceHandler 中会指定每个自定义标签的BeanDefinitionParser 和对应的 Class.</p>
+<p><strong>[29]SPI扩展点</strong></p>
+<p><strong>[30]Tomcat</strong><br><strong>[31]RPC</strong><br><strong>[32]MQ</strong><br><strong>[33]介绍几种常用的设计模式以及他们的使用场景</strong></p>
+<p><strong>1. 责任链模式：</strong><br>Tomcat:<br>Servlet Filter，Filter 接口定义了 doFilter(request,response,filterChain)方法，<br>FilterChain 接口定义了 doFilter(request,response)方法，Tomcat的ApplicationFilterChain实现了该接口，负责保存filter，然后按序执行。</p>
+<p>Pipeline, Valve. StandardPipeline</p>
+<p><strong>2. 代理模式：</strong><br>静态代理:<br>dhcp、druid等数据库连接池实现，都代理了JDBC Connection、Statement<br>动态代理：<br>RPC 框架</p>
+<p><strong>3. 工厂模式：</strong><br>MyBatis:<br>SqlSessionFactory、MapperProxyFactory</p>
+<p><strong>4. 观察者模式（发布订阅模式）</strong><br>Tomcat:<br>LifecycleBase、LifecycleListener、LifecycleSupport</p>
+<p><strong>5. 单例模式</strong></p>
+<p><strong>[34]分布式事务，两阶段提交</strong><br>知道两阶段提交（画图说明），以及两阶段提交中会遇到的问题(Timeout unkonwn问题，回查)，怎么解决。</p>
+<p><strong>[35]如何实现分布式锁</strong></p>
+<ul>
+<li>互斥性</li>
+<li>无死锁</li>
+<li>容错性</li>
+<li>不能被其他线程释放<br><a href="https://github.com/antirez/redis-doc/blob/master/topics/distlock.md" target="_blank" rel="noopener">Distributed locks with Redis</a><br><a href="https://github.com/SPSCommerce/redlock-py/blob/master/redlock/__init__.py" target="_blank" rel="noopener">https://github.com/SPSCommerce/redlock-py/blob/master/redlock/__init__.py</a></li>
+</ul>
+<p><strong>[36]如何实现分布式Session</strong></p>
+<ul>
+<li>Tomcat Session单机和Cluster实现</li>
+<li>Session 复制</li>
+<li>Session Sticky</li>
+<li>Session 集中管理</li>
+</ul>
+<p><strong>[37]聊聊负载均衡</strong></p>
+<p>从大的架构层去分析，最外层是F5/LVS –&gt; Ngnix –&gt; Web接入层 –(RPC实现负载均衡)-&gt; 后台服务  —-&gt; DB</p>
+<p><strong>[38]聊聊缓存的使用</strong><br><a href="https://fdx321.github.io/2016/09/09/%E7%BC%93%E5%AD%98%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" target="_blank" rel="noopener">缓存使用总结</a><br>关注以下几个问题：</p>
+<ul>
+<li>更新缓存还是淘汰缓存</li>
+<li>淘汰缓存和更新数据库的先后顺序以及各自会有什么问题</li>
+<li>缓存穿透问题</li>
+<li>热点key问题（一旦key失效。。）</li>
+<li>过载问题（缓存预热）</li>
+</ul>
+<p><strong>[39]CDN实现原理</strong><br><a href="http://www.cstdlib.com/tech/2015/08/18/what-is-cdn/" target="_blank" rel="noopener">CDN的原理以及其中的一些技术</a><br><strong>[40]秒杀系统设计</strong><br><strong>[41]超卖问题</strong><br><strong>[42]Fork Join</strong><br><strong>[43]JVM的一些关键参数是什么意思</strong><br>-Xmx -Xms -Xmn -Xss<br>-XX:NewRatio -XX:SurvivorRatio<br>-XX:NewSize， -XX:MaxNewSize -XX:MaxTenuringThreshold<br><strong>[44]动态代理</strong><br><strong>[45]ThreadLocal</strong><br><strong>[46]BIO,NIO,AIO</strong><br><strong>[47]Sleep和Wait</strong><br><strong>[48]wait和notify</strong><br><a href="http://blog.csdn.net/oracle_microsoft/article/details/6863662" target="_blank" rel="noopener">Java多线程之wait(),notify(),notifyAll()</a><br><strong>[49]volatile</strong><br><strong>[50]BeanFactory和FactoryBean以及它们的使用场景</strong><br><strong>[51]BloomFilter</strong><br><a href="http://www.cnblogs.com/heaad/archive/2011/01/02/1924195.html" target="_blank" rel="noopener">BloomFilter——大规模数据处理利器</a></p>
+<style>
+img[title="200"] {
+  width:200px;
+  display: block;
+}
+
+img[title="300"] {
+  width:300px;
+  width:300px;
+  display: block;
+}
+img[title="400"] {
+  width:400px;
+  display: block;
+}
+img[title="500"] {
+  width:500px;
+  display: block;
+}
+img[title="600"] {
+  width:600px;
+  display: block;
+}
+</style>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/12/05/分布式爬虫小记/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          分布式爬虫小记
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/07/13/读过的好的文章/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">读过的好的文章</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="知识体系梳理" data-title="知识体系梳理" data-url="http://yoursite.com/2015/10/25/知识体系梳理/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2018 小谢
+    	</div>
+      <span id="access-count">
+      </span>
+      <div class="footer-right">
+      	<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!--page counter part-->
+<script>
+function addCount (Counter) {
+        var query1=new AV.Query(Counter);
+        query1.equalTo("url","totalCount");
+        query1.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("url","totalCount");
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+
+        url=$('.article-date').attr('href').trim();
+        title = $('.article-title').text().trim();
+        var query2=new AV.Query(Counter);
+        query2.equalTo("url",url);
+        query2.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("title",title);
+                    newcounter.set("url",url);
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+}
+$(function(){
+        var Counter=AV.Object.extend("Counter");
+        //only increse visit counting when intering a page
+        if ($('.article-title').length == 1){
+           addCount(Counter);
+         }
+
+        var query=new AV.Query(Counter);
+        query.equalTo("url","totalCount");
+        query.find({
+            success: function(results){
+              $('#access-count').text(results[0].get('time'));
+            },
+            error: function(error){
+                console.log("Error:"+error.code+" "+error.message);
+            }
+        });
+});
+</script>
+
+  </div>
+</body>
+</html>

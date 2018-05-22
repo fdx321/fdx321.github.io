@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>【RocketMQ源码学习】4-消息发送 | 谢晞鸣的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. Client端，三种发送方式RocketMQ 支持常见的三种发送方式，  SYNC1producer.send(msg)   同步的发送方式，会等待发送结果后才返回。可以用 send(msg, timeout) 的方式指定等待时间，如果不指定，就是默认的 3000ms. 这个timeout 最终会被设置到 ResponseFuture 里，再发送完消息后，用 countDownLatch 去">
+<meta name="keywords" content="Java,RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【RocketMQ源码学习】4-消息发送">
+<meta property="og:url" content="http://yoursite.com/2017/08/21/【RocketMQ源码学习】4-消息发送/index.html">
+<meta property="og:site_name" content="谢晞鸣的博客">
+<meta property="og:description" content="1. Client端，三种发送方式RocketMQ 支持常见的三种发送方式，  SYNC1producer.send(msg)   同步的发送方式，会等待发送结果后才返回。可以用 send(msg, timeout) 的方式指定等待时间，如果不指定，就是默认的 3000ms. 这个timeout 最终会被设置到 ResponseFuture 里，再发送完消息后，用 countDownLatch 去">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/【RocketMQ源码学习】4_消息发送_1.png">
+<meta property="og:updated_time" content="2018-05-20T02:18:02.260Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【RocketMQ源码学习】4-消息发送">
+<meta name="twitter:description" content="1. Client端，三种发送方式RocketMQ 支持常见的三种发送方式，  SYNC1producer.send(msg)   同步的发送方式，会等待发送结果后才返回。可以用 send(msg, timeout) 的方式指定等待时间，如果不指定，就是默认的 3000ms. 这个timeout 最终会被设置到 ResponseFuture 里，再发送完消息后，用 countDownLatch 去">
+<meta name="twitter:image" content="http://yoursite.com/images/【RocketMQ源码学习】4_消息发送_1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="谢晞鸣的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+  <script>AV.initialize("t0oo3lf98OPPpD4kenk6vFYf-gzGzoHsz", "FtwKfgFgc5fELEvKhCGUmBBO");</script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">小谢</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+					        
+								<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+					        
+								<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+					        
+								<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcetMQ/" style="font-size: 10px;">RokcetMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://nba.hupu.com/">虎扑篮球</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://blog.jobbole.com/">伯乐在线</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.importnew.com/">ImportNew</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+				
+				<section class="switch-part switch-part4">
+				
+					<div id="js-aboutme">某互联网金融公司资浅工程师.</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">小谢</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="http://wx2.sinaimg.cn/small/6a2787d4ly8fn9hdgyfsbj20dc0dc0uo.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">小谢</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/fdx321" title="github">github</a>
+			        
+						<a class="weibo" target="_blank" href="http://weibo.com/fdx321" title="weibo">weibo</a>
+			        
+						<a class="zhihu" target="_blank" href="http://www.zhihu.com/people/xie-xi-ming" title="zhihu">zhihu</a>
+			        
+						<a class="mail" target="_blank" href="mailto:fdx321@126.com" title="mail">mail</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-【RocketMQ源码学习】4-消息发送" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/21/【RocketMQ源码学习】4-消息发送/" class="article-date">
+  	<time datetime="2017-08-21T05:01:45.000Z" itemprop="datePublished">2017-08-21</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【RocketMQ源码学习】4-消息发送
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RocketMQ/">RocketMQ</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="1-Client端，三种发送方式"><a href="#1-Client端，三种发送方式" class="headerlink" title="1. Client端，三种发送方式"></a><strong>1. Client端，三种发送方式</strong></h3><p>RocketMQ 支持常见的三种发送方式，</p>
+<ul>
+<li>SYNC<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">producer.send(msg)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>同步的发送方式，会等待发送结果后才返回。可以用 send(msg, timeout) 的方式指定等待时间，如果不指定，就是默认的 3000ms. 这个timeout 最终会被设置到 ResponseFuture 里，再发送完消息后，用 countDownLatch 去 await timeout的时间，如果过期，就会抛出异常。</p>
+<ul>
+<li>ASYNC<a id="more"></a>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">producer.send(msg, <span class="keyword">new</span> SendCallback() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(SendResult sendResult)</span> </span>&#123;</span><br><span class="line">        System.out.printf(<span class="string">"%-10d OK %s %n"</span>, index, sendResult.getMsgId());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onException</span><span class="params">(Throwable e)</span> </span>&#123;</span><br><span class="line">        System.out.printf(<span class="string">"%-10d Exception %s %n"</span>, index, e);</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>异步的发送方式，发送完后，立刻返回。Client 在拿到 Broker 的响应结果后，会回调指定的 callback.  这个 API 也可以指定 Timeout，不指定也是默认的 3000ms. </p>
+<ul>
+<li>ONEWAY<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">producer.sendOneway(msg);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>比较简单，发出去后，什么都不管直接返回。</p>
+<p>对于每种方式，Producer 还提供了可以指定 MessageQueue， MessageQueueSelector的API，这属于稍微高端一点的玩法，一般用它提供的默认的策略选择 MessageQueue 就可以了。</p>
+<h3 id="2-Client端发送过程"><a href="#2-Client端发送过程" class="headerlink" title="2. Client端发送过程"></a><strong>2. Client端发送过程</strong></h3><p>下面以 SYNC 方式为例，看下整个消息的发送过程，其他方式略有差异，总体流程类似。</p>
+<p><strong>1.  根据 Topic 找到指定的 TopicPublishInfo</strong><br>先去本地 map 找，如果没有，就去 Namesrv fetch, 如果 Namesrv 里也没有，则用默认的 Topic 再去 fetch TopicRouteData. 对用用默认 Topic 的这种情况，Client 拿到数据后，会去构建 TopicPublishInfo, 然后用当前的 Topic 作为 key 放到本地 map 里。Broker 在接收到消息的时候，会去更新它本地的配置，然后在 registerBroker 的时候会去更新 namesrv 中的 TopicRouteData 信息，这样 Namesrv 中就会有这样一份配置了。当然，也可以事先在 Namesrv 增加该配置，很多公司内部都有这样定制的平台来管理MQ的接入配置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TopicPublishInfo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> orderTopic = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> haveTopicRouterInfo = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">private</span> List&lt;MessageQueue&gt; messageQueueList = <span class="keyword">new</span> ArrayList&lt;MessageQueue&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> ThreadLocalIndex sendWhichQueue = <span class="keyword">new</span> ThreadLocalIndex();</span><br><span class="line">    <span class="keyword">private</span> TopicRouteData topicRouteData;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TopicRouteData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String orderTopicConf;</span><br><span class="line">    <span class="keyword">private</span> List&lt;QueueData&gt; queueDatas;</span><br><span class="line">    <span class="keyword">private</span> List&lt;BrokerData&gt; brokerDatas;</span><br><span class="line">    <span class="keyword">private</span> HashMap&lt;String<span class="comment">/* brokerAddr */</span>, List&lt;String&gt;<span class="comment">/* Filter Server */</span>&gt; filterServerTable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>QueueData 定义了这个 read 和 write 的 queue的数量，Client 在拿到 TopicRouteData 后，会根据这里配的数量去构建响应数目的messageQueue，即 messageQueueList. brokerDatas 保存了各个 broker 的相关信息。</p>
+<p><strong>2. 从 messageQueueList 中选择一个 MessageQueue</strong><br>如果没有 enable latencyFaultTolerance，就用递增取模的方式选择。如果 enable 了，在递增取模的基础上，再过滤掉 not available 的。这里所谓的 latencyFaultTolerance, 是指对之前失败的，按一定的时间做退避：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span>[] latencyMax = &#123;<span class="number">50L</span>, <span class="number">100L</span>, <span class="number">550L</span>, <span class="number">1000L</span>, <span class="number">2000L</span>, <span class="number">3000L</span>, <span class="number">15000L</span>&#125;;</span><br><span class="line"><span class="keyword">long</span>[] notAvailableDuration = &#123;<span class="number">0L</span>, <span class="number">0L</span>, <span class="number">30000L</span>, <span class="number">60000L</span>, <span class="number">120000L</span>, <span class="number">180000L</span>, <span class="number">600000L</span>&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>举个例子，如果上次请求的 latency 超过 550L ms, 就退避 3000L ms；超过 1000L，就退避 60000L.<br>以上就是 Producer 到 Broker 的简单的负载均衡。</p>
+<p><strong>3. 发送消息</strong><br>到这一步，我们已经拿到了这些关键数据：</p>
+<ul>
+<li>Message， 要发送的消息</li>
+<li>MessageQueue，这里面包括 topic/brokerName/queueId</li>
+<li>CommunicationMode, 发送方式, SYNC/ASYNC/ONEWAY</li>
+<li>TopicPublishInfo</li>
+</ul>
+<p>有了这些数据，就可以构建 RequestHeader 了，大部分字段意思都很明显（当然，前提是对RocketMQ的源码有所熟悉），个别字段见注释。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">requestHeader.setProducerGroup(<span class="keyword">this</span>.defaultMQProducer.getProducerGroup());</span><br><span class="line">requestHeader.setTopic(msg.getTopic());</span><br><span class="line">requestHeader.setDefaultTopic(<span class="keyword">this</span>.defaultMQProducer.getCreateTopicKey());</span><br><span class="line">requestHeader.setDefaultTopicQueueNums(<span class="keyword">this</span>.defaultMQProducer.getDefaultTopicQueueNums());</span><br><span class="line">requestHeader.setQueueId(mq.getQueueId());</span><br><span class="line"><span class="comment">//系统Flag, 用于判断走什么逻辑。标识是否压缩，事务的不同TYPE(prepare/rollback/commit/not transaction) 等</span></span><br><span class="line">requestHeader.setSysFlag(sysFlag); </span><br><span class="line">requestHeader.setBornTimestamp(System.currentTimeMillis());</span><br><span class="line"><span class="comment">//消息Flag, 最终会落地</span></span><br><span class="line">requestHeader.setFlag(msg.getFlag());</span><br><span class="line">requestHeader.setProperties(MessageDecoder.messageProperties2String(msg.getProperties()));</span><br><span class="line">requestHeader.setReconsumeTimes(<span class="number">0</span>);</span><br><span class="line"><span class="comment">//TODO，暂不知道这个字段是干嘛用的</span></span><br><span class="line">requestHeader.setUnitMode(<span class="keyword">this</span>.isUnitMode());</span><br><span class="line">requestHeader.setBatch(msg <span class="keyword">instanceof</span> MessageBatch);</span><br></pre></td></tr></table></figure></p>
+<p>最后用这些 header 字段，以及 message body 构建 RemotingCommand，通过 remoting 模块发给 broker.</p>
+<p><strong>4. 处理结果</strong></p>
+<ul>
+<li>发送成功：直接返回发送结果</li>
+<li>发送失败：如果 enable retryAnotherBrokerWhenNotStoreOK，就会重试，默认重试两次(retryTimesWhenSendFailed)。否则直接返回结果</li>
+<li>发送异常：Producer 对异常做了很好的区分，如果是 Remoting 和 Client 模块的异常，就重试，如果是 Broker 模块的异常，根据不同的 response code 做不同的处理，有的重试，有的抛出异常，有的返回结果。</li>
+</ul>
+<h3 id="3-Broker端，消息的处理和落地"><a href="#3-Broker端，消息的处理和落地" class="headerlink" title="3. Broker端，消息的处理和落地"></a><strong>3. Broker端，消息的处理和落地</strong></h3><p><img src="/images/【RocketMQ源码学习】4_消息发送_1.png" alt=""><br>如图，Broker 有很多 Processor 用来处理不同类型的请求，有些 Processor 会共用一个 Processor 线程池。对于消息发送，Broker 的 remoting 模块在接收到请求后，根据request code，最终会交给 SendMessageProcessor 来处理。SendMessageProcessor 会依次做以下处理：</p>
+<ul>
+<li>做一些校验，包括但不限于<ul>
+<li>broker 是否可写</li>
+<li>topic 配置是否存在，如果不存在就新建一个（createTopicInSendMessageMethod）</li>
+<li>校验 queueId 是否超过指定大小</li>
+</ul>
+</li>
+<li>构建 MessageExtBrokerInner</li>
+<li>将 MessageExtBrokerInner 交给 Store 处理</li>
+<li>处理 Store 返回的结果，BrokerStatsManager 做一些统计更新，设置 Response 中的一些字段并返回。</li>
+</ul>
+<p>Store 收到消息后，会先做一些校验，然后交给 commitLog 去 put，然后做些统计并返回。Store 存储消息的过程比较复杂，后面会单独分析。</p>
+<h3 id="4-其他"><a href="#4-其他" class="headerlink" title="4. 其他"></a><strong>4. 其他</strong></h3><p><strong>1. 顺序消息</strong><br>很多应用并不关注消息顺序，而且消息没有顺序并不代表消息内容没有顺序，合理的系统设计可以避免顺序问题。MQ 要保证消息顺序必然会损失性能、增加系统实现复杂度。具体的分析可以看 <a href="http://www.jianshu.com/p/453c6e7ff81c" target="_blank" rel="noopener">分布式开放消息系统(RocketMQ)的原理与实践</a>。</p>
+<p>在 RocketMQ 里, 在发送消息的时候可以自己定义 MessageQueueSelector，对于同一个订单ID（或其他ID）的不同消息，可以让它走同一个 MessageQueue，这样就可以按顺序发给同一个 Broker 了。</p>
+<p><strong>2. Batch Message</strong><br>Producer 的 API 还支持一次发多个消息。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Message&gt; messages = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">messages.add(<span class="keyword">new</span> Message(topic, <span class="string">"Tag"</span>, <span class="string">"OrderID001"</span>, <span class="string">"Hello world 0"</span>.getBytes()));</span><br><span class="line">messages.add(<span class="keyword">new</span> Message(topic, <span class="string">"Tag"</span>, <span class="string">"OrderID002"</span>, <span class="string">"Hello world 1"</span>.getBytes()));</span><br><span class="line"></span><br><span class="line">producer.send(messages);</span><br></pre></td></tr></table></figure></p>
+<p>Client 模块会将 Message List 封装成 MessageBatch，且会标记 requestHeader 的 batch 标志位为 true. Broker 在接收到消息后就可以根据这个标志位去做不同的处理。</p>
+<h3 id="5-Reference"><a href="#5-Reference" class="headerlink" title="5. Reference"></a><strong>5. Reference</strong></h3><ul>
+<li><a href="http://alibaba.github.io/RocketMQ-docs/document/design/RocketMQ_design.pdf" target="_blank" rel="noopener">RocketMQ 原理简介</a></li>
+<li><a href="http://www.jianshu.com/p/453c6e7ff81c" target="_blank" rel="noopener">分布式开放消息系统(RocketMQ)的原理与实践</a></li>
+</ul>
+<h5 id=""><a href="#" class="headerlink" title="-"></a>-</h5><p><strong> 以上所有扯淡都是基于源码 <a href="https://github.com/apache/incubator-rocketmq" target="_blank" rel="noopener">https://github.com/apache/incubator-rocketmq</a> (<em>tag:rocketmq-all-4.1.0-incubating</em>)  </strong> 所贴代码有所删减。</p>
+<style>
+img[title="300"] {
+  width:300px;
+  width:300px;
+  display: block;
+}
+img[title="600"] {
+  width:700px;
+  height:600px;
+  display: block;
+}
+</style>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/08/22/【RocketMQ源码学习】5-消息消费/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          【RocketMQ源码学习】5-消息消费
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/08/21/【RocketMQ源码学习】3-Remoting模块/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">【RocketMQ源码学习】3-Remoting模块</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到：</span>
+		<a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+		<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="【RocketMQ源码学习】4-消息发送" data-title="【RocketMQ源码学习】4-消息发送" data-url="http://yoursite.com/2017/08/21/【RocketMQ源码学习】4-消息发送/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2018 小谢
+    	</div>
+      <span id="access-count">
+      </span>
+      <div class="footer-right">
+      	<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!--page counter part-->
+<script>
+function addCount (Counter) {
+        var query1=new AV.Query(Counter);
+        query1.equalTo("url","totalCount");
+        query1.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("url","totalCount");
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+
+        url=$('.article-date').attr('href').trim();
+        title = $('.article-title').text().trim();
+        var query2=new AV.Query(Counter);
+        query2.equalTo("url",url);
+        query2.find({
+            success: function(results){
+                if(results.length>0)
+                {
+                    var counter=results[0];
+                    counter.fetchWhenSave(true); //get recent result
+                    counter.increment("time");
+                    counter.save();
+                }
+                else
+                {
+                    var newcounter=new Counter();
+                    newcounter.set("title",title);
+                    newcounter.set("url",url);
+                    newcounter.set("time",1);
+                    newcounter.save(null,{
+                        success: function(newcounter){
+                          console.log('New object created');
+                        },
+                        error: function(newcounter,error){
+                          console.log('Failed to create');
+                        }
+                        });
+                }
+            },
+            error: function(error){
+                //find null is not a error
+                console.log('Error:'+error.code+" "+error.message);
+            }
+        });
+}
+$(function(){
+        var Counter=AV.Object.extend("Counter");
+        //only increse visit counting when intering a page
+        if ($('.article-title').length == 1){
+           addCount(Counter);
+         }
+
+        var query=new AV.Query(Counter);
+        query.equalTo("url","totalCount");
+        query.find({
+            success: function(results){
+              $('#access-count').text(results[0].get('time'));
+            },
+            error: function(error){
+                console.log("Error:"+error.code+" "+error.message);
+            }
+        });
+});
+</script>
+
+  </div>
+</body>
+</html>
