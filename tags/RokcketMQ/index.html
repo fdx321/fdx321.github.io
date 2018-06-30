@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tag: XXL-JOB | 谢晞鸣的博客</title>
+  <title>Tag: RokcketMQ | 谢晞鸣的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="谢晞鸣的博客">
 <meta property="og:type" content="website">
 <meta property="og:title" content="谢晞鸣的博客">
-<meta property="og:url" content="http://yoursite.com/tags/XXL-JOB/index.html">
+<meta property="og:url" content="http://yoursite.com/tags/RokcketMQ/index.html">
 <meta property="og:site_name" content="谢晞鸣的博客">
 <meta property="og:description" content="谢晞鸣的博客">
 <meta property="og:locale" content="zh-CN">
@@ -194,11 +194,11 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-从xxl-job看分布式调度中心的设计" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-【RocketMQ源码学习】9-事务消息" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/29/从xxl-job看分布式调度中心的设计/" class="article-date">
-  	<time datetime="2017-07-29T14:01:35.000Z" itemprop="datePublished">2017-07-29</time>
+      <a href="/2017/08/23/【RocketMQ源码学习】9-事务消息/" class="article-date">
+  	<time datetime="2017-08-23T12:45:30.000Z" itemprop="datePublished">2017-08-23</time>
 </a>
     </div>
   
@@ -211,7 +211,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/29/从xxl-job看分布式调度中心的设计/">从xxl-job看分布式调度中心的设计</a>
+      <a class="article-title" href="/2017/08/23/【RocketMQ源码学习】9-事务消息/">【RocketMQ源码学习】9-事务消息</a>
     </h1>
   
 
@@ -220,9 +220,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>xxl-job是xuxueli同学开源的XXL系列中的一员，是一个分布式任务调度平台。我在撸完了TCP/IP协议栈源码(netX, 非开源，讲真，里面关于TCP拥塞控制那部分没看明白)、Tomcat源码(JSP/Servlet容器)、Motan源码(RPC框架)之后。想研究一下调度中心的实现, 也没有仔细比较过就选择了XXL_JOB. 撸完一遍源码后，发现是一个比较小的项目，所以就不打算搞一个系列了，就整一篇博客总结一下，还是有所收获的。</p>
-<p>关于xxl_job的功能介绍以及使用方法，作者写的文档很详细，也很容易上手，这里就不追溯了。代码相对简单，没有复杂的算法、数据结构、线程模型等，我就不抠细节了，从大的方面来总结下。</p>
-<h3 id="1-项目结构"><a href="#1-项目结构" class="headerlink" title="1. 项目结构"></a><strong>1. 项目结构</strong></h3>
+        <p>还是拿最经典的有君转账给芋芫100元为例来说明事务问题吧，所谓事务，即要保证 “有君账户的钱减100“和”芋芫账户的钱加100”这两个操作要么同时成功，要么同时失败，这在单机情况下很好实现。如果有君账户减100元的操作是在AAA应用里完成的，芋芫账户加100的操作是在BBB应用里完成的，这个事务要怎么保证呢，分布式系统设计领域有一些办法来实现（什么两阶段提交、paxos，raft等，对后两者我一点都不懂，不瞎BB了，说的好像你对两阶段提交很懂一样。。。）。<br>我们这里只关注 <strong>小事务 + 异步</strong> 这种方式。所谓<strong>小事务 + 异步</strong>, 就是指 【有君+100】、【芋芫-100】这两个本地事务加一个 AAA 发给 BBB 的异步消息，如图：<br><img src="/images/【RocketMQ源码学习】9-事务消息_1.png" alt="500"><br>
       
     </div>
     
@@ -230,14 +228,14 @@
       
       
 	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/XXL-JOB/">XXL-JOB</a></li></ul>
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RokcketMQ/">RokcketMQ</a></li></ul>
 	</div>
 
       
 
       
         <p class="article-more-link">
-          <a  href="/2017/07/29/从xxl-job看分布式调度中心的设计/#more">more >></a>
+          <a  href="/2017/08/23/【RocketMQ源码学习】9-事务消息/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>

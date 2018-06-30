@@ -6,7 +6,7 @@
   <title>【RocketMQ源码学习】9-事务消息 | 谢晞鸣的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="还是拿最经典的有君转账给芋芫100元为例来说明事务问题吧，所谓事务，即要保证 “有君账户的钱减100“和”芋芫账户的钱加100”这两个操作要么同时成功，要么同时失败，这在单机情况下很好实现。如果有君账户减100元的操作是在AAA应用里完成的，芋芫账户加100的操作是在BBB应用里完成的，这个事务要怎么保证呢，分布式系统设计领域有一些办法来实现（什么两阶段提交、paxos，raft等，对后两者我一点">
-<meta name="keywords" content="Java,RokcetMQ">
+<meta name="keywords" content="Java,RokcketMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【RocketMQ源码学习】9-事务消息">
 <meta property="og:url" content="http://yoursite.com/2017/08/23/【RocketMQ源码学习】9-事务消息/index.html">
@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/【RocketMQ源码学习】9-事务消息_1.png">
 <meta property="og:image" content="http://yoursite.com/images/【RocketMQ源码学习】9-事务消息_2.png">
-<meta property="og:updated_time" content="2018-05-20T02:18:02.262Z">
+<meta property="og:updated_time" content="2018-06-30T02:45:45.949Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【RocketMQ源码学习】9-事务消息">
 <meta name="twitter:description" content="还是拿最经典的有君转账给芋芫100元为例来说明事务问题吧，所谓事务，即要保证 “有君账户的钱减100“和”芋芫账户的钱加100”这两个操作要么同时成功，要么同时失败，这在单机情况下很好实现。如果有君账户减100元的操作是在AAA应用里完成的，芋芫账户加100的操作是在BBB应用里完成的，这个事务要怎么保证呢，分布式系统设计领域有一些办法来实现（什么两阶段提交、paxos，raft等，对后两者我一点">
@@ -48,7 +48,7 @@
 		</hgroup>
 
 		
-		<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+		<p class="header-subtitle">...</p>
 		
 
 		
@@ -123,7 +123,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcetMQ/" style="font-size: 10px;">RokcetMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcketMQ/" style="font-size: 10px;">RokcketMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
 					</div>
 				</section>
 				
@@ -169,7 +169,7 @@
 			  <h1 class="header-author">小谢</h1>
 			</hgroup>
 			
-			<p class="header-subtitle">长期内推蚂蚁金服高级开发工程/技术专家，欢迎勾搭</p>
+			<p class="header-subtitle">...</p>
 			
 			<nav class="header-menu">
 				<ul>
@@ -223,7 +223,7 @@
       <div class="article-info article-info-post">
         
 	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RokcetMQ/">RokcetMQ</a></li></ul>
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RokcketMQ/">RokcketMQ</a></li></ul>
 	</div>
 
         
