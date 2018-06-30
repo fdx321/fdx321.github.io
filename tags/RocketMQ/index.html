@@ -118,7 +118,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16.67px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 11.67px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 15px;">RocketMQ</a> <a href="/tags/RokcketMQ/" style="font-size: 10px;">RokcketMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 13.33px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 11.67px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18.33px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 13.33px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
+						<a href="/tags/BloomFilter/" style="font-size: 10px;">BloomFilter</a> <a href="/tags/Groovy/" style="font-size: 10px;">Groovy</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MongoDB/" style="font-size: 10px;">MongoDB</a> <a href="/tags/Motan/" style="font-size: 16px;">Motan</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 10px;">Netty</a> <a href="/tags/Nio/" style="font-size: 10px;">Nio</a> <a href="/tags/Python/" style="font-size: 12px;">Python</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/RocketMQ/" style="font-size: 16px;">RocketMQ</a> <a href="/tags/Scala/" style="font-size: 10px;">Scala</a> <a href="/tags/Scrapy/" style="font-size: 14px;">Scrapy</a> <a href="/tags/Spring/" style="font-size: 12px;">Spring</a> <a href="/tags/Tomcat/" style="font-size: 18px;">Tomcat</a> <a href="/tags/XXL-JOB/" style="font-size: 10px;">XXL-JOB</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/log/" style="font-size: 10px;">log</a> <a href="/tags/事务/" style="font-size: 10px;">事务</a> <a href="/tags/分布式/" style="font-size: 10px;">分布式</a> <a href="/tags/博客/" style="font-size: 14px;">博客</a> <a href="/tags/可视化/" style="font-size: 10px;">可视化</a> <a href="/tags/收藏/" style="font-size: 10px;">收藏</a> <a href="/tags/爬虫/" style="font-size: 14px;">爬虫</a> <a href="/tags/缓存/" style="font-size: 10px;">缓存</a>
 					</div>
 				</section>
 				
@@ -237,6 +237,64 @@
       
         <p class="article-more-link">
           <a  href="/2018/01/03/Kafka-Vs-RocketMQ/#more">more >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+  
+    <article id="post-【RocketMQ源码学习】9-事务消息" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/23/【RocketMQ源码学习】9-事务消息/" class="article-date">
+  	<time datetime="2017-08-23T12:45:30.000Z" itemprop="datePublished">2017-08-23</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/23/【RocketMQ源码学习】9-事务消息/">【RocketMQ源码学习】9-事务消息</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>还是拿最经典的有君转账给芋芫100元为例来说明事务问题吧，所谓事务，即要保证 “有君账户的钱减100“和”芋芫账户的钱加100”这两个操作要么同时成功，要么同时失败，这在单机情况下很好实现。如果有君账户减100元的操作是在AAA应用里完成的，芋芫账户加100的操作是在BBB应用里完成的，这个事务要怎么保证呢，分布式系统设计领域有一些办法来实现（什么两阶段提交、paxos，raft等，对后两者我一点都不懂，不瞎BB了，说的好像你对两阶段提交很懂一样。。。）。<br>我们这里只关注 <strong>小事务 + 异步</strong> 这种方式。所谓<strong>小事务 + 异步</strong>, 就是指 【有君+100】、【芋芫-100】这两个本地事务加一个 AAA 发给 BBB 的异步消息，如图：<br><img src="/images/【RocketMQ源码学习】9-事务消息_1.png" alt="500"><br>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RocketMQ/">RocketMQ</a></li></ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a  href="/2017/08/23/【RocketMQ源码学习】9-事务消息/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -604,67 +662,6 @@
       
         <p class="article-more-link">
           <a  href="/2017/08/21/【RocketMQ源码学习】3-Remoting模块/#more">more >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-  
-    <article id="post-【RocketMQ源码学习】2-Namesrv" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/17/【RocketMQ源码学习】2-Namesrv/" class="article-date">
-  	<time datetime="2017-08-17T02:41:52.000Z" itemprop="datePublished">2017-08-17</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/17/【RocketMQ源码学习】2-Namesrv/">【RocketMQ源码学习】2-Namesrv</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="1-Namesrv-简介"><a href="#1-Namesrv-简介" class="headerlink" title="1. Namesrv 简介"></a><strong>1. Namesrv 简介</strong></h3><p>Namesrv 可以理解为一个注册中心, 整个Namesrv的代码非常简单，主要包含两块功能：</p>
-<ul>
-<li>管理一些 KV 的配置</li>
-<li>管理一些 Topic、Broker的注册信息
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RocketMQ/">RocketMQ</a></li></ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a  href="/2017/08/17/【RocketMQ源码学习】2-Namesrv/#more">more >></a>
         </p>
       
       <div class="clearfix"></div>
