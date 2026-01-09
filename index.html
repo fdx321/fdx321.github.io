@@ -1,23 +1,2107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  
-  <title>谢晞鸣的博客</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="谢晞鸣的博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="谢晞鸣的博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="谢晞鸣的博客">
-<meta property="og:description" content="谢晞鸣的博客">
-<meta property="og:locale" content="zh-CN">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="谢晞鸣的博客">
-<meta name="twitter:description" content="谢晞鸣的博客">
-  
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nav</title>
+    <style>
+        :root {
+            --bg-color: #101014;
+            --sidebar-bg: #18181b;
+            --card-bg: #202023;
+            --card-hover: #27272a;
+            --text-main: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --accent: #10b981; /* Green */
+            --accent-hover: #059669;
+            --border: #27272a;
+            --danger: #ef4444;
+        }
 
-<body>  欢迎来到这里
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            padding: 24px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand span {
+            color: #fff;
+        }
+
+        .nav-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+            list-style: none;
+        }
+
+        .nav-group {
+            margin-bottom: 8px;
+        }
+
+        .nav-group-header {
+            padding: 6px 16px 6px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-group-header .group-actions {
+            display: none;
+            gap: 4px;
+        }
+        
+        .edit-mode .nav-group-header .group-actions {
+            display: flex;
+        }
+
+        .nav-sub-item {
+            padding: 8px 24px 8px 36px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .nav-sub-item:hover {
+            background-color: rgba(255,255,255,0.03);
+            color: var(--text-main);
+        }
+
+        .nav-sub-item.active {
+            color: var(--accent);
+            background-color: rgba(16, 185, 129, 0.05);
+            border-right: 3px solid var(--accent);
+        }
+
+        .nav-actions {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-row .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--card-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-danger {
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-icon-sm {
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .btn-icon-sm:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-main);
+        }
+        
+        .btn-icon-sm.delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .btn-icon {
+            padding: 4px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            background: var(--card-hover);
+            border-color: var(--accent);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            gap: 4px;
+        }
+
+        .edit-mode .card-actions {
+            display: flex;
+        }
+
+        .action-btn {
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .action-btn.edit:hover { background: var(--accent); }
+        .action-btn.delete:hover { background: var(--danger); }
+
+        .card:hover .action-btn { opacity: 1; }
+        
+        /* Drag Visuals */
+        .card-group-header {
+            grid-column: 1 / -1;
+            padding: 16px 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-group-header:first-child {
+            margin-top: 0;
+        }
+
+        .delete-group-btn {
+            background: transparent;
+            color: var(--danger);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.6;
+        }
+        
+        .delete-group-btn:hover {
+            opacity: 1;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        .edit-controls { display: none; }
+        .edit-mode .edit-controls { display: flex; }
+        .edit-mode .view-controls { display: none; }
+
+        /* Drag and Drop */
+        .draggable-source {
+            opacity: 0.5;
+            border: 1px dashed var(--accent);
+        }
+
+        .drag-over-top {
+            border-top: 2px solid var(--accent) !important;
+        }
+        
+        .drag-over-bottom {
+            border-bottom: 2px solid var(--accent) !important;
+        }
+        
+        .drag-over-left {
+            border-left: 2px solid var(--accent) !important;
+        }
+        
+        .drag-over-right {
+            border-right: 2px solid var(--accent) !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+        /* Command Palette Trigger */
+        .search-bar-trigger {
+            display: flex;
+            align-items: center;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            width: 400px;
+            max-width: 100%;
+            cursor: pointer;
+            color: #a1a1aa;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin: 0 20px;
+        }
+
+        .search-bar-trigger:hover {
+            border-color: #52525b;
+            background: #202023;
+            color: #e4e4e7;
+        }
+
+        .search-bar-icon {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .search-bar-text {
+            flex: 1;
+        }
+
+        .search-bar-shortcut {
+            font-size: 12px;
+            color: #71717a;
+            border: 1px solid #3f3f46;
+            border-radius: 4px;
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.05);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        /* Command Palette Modal */
+        .search-palette {
+            background: #18181b;
+            width: 600px;
+            max-width: 90vw;
+            border-radius: 12px;
+            border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideDown 0.1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .search-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .search-header input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            color: #fff;
+            outline: none;
+        }
+
+        .search-shortcut {
+            font-size: 12px;
+            color: #71717a;
+            border: 1px solid #3f3f46;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+
+        .search-results {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #a1a1aa;
+            text-decoration: none;
+        }
+
+        .search-item:hover, .search-item.selected {
+            background: #10b981; /* Green accent */
+            color: #fff;
+        }
+        
+        .search-item.selected .search-item-desc {
+             color: rgba(255,255,255,0.8);
+        }
+
+        .search-item-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .search-item-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .search-item-title {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .search-item-desc {
+            font-size: 12px;
+            color: #71717a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .search-item:hover .search-item-desc {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .search-empty {
+            padding: 30px;
+            text-align: center;
+            color: #52525b;
+        }
+
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="brand">
+        <div style="width: 24px; height: 24px; background: var(--accent); border-radius: 4px;"></div>
+        <span>Nav</span>
+    </div>
+    <div class="nav-list" id="navList">
+        <!-- Generated by JS -->
+    </div>
+    <div class="nav-actions">
+        <button class="btn" style="width: 100%" onclick="toggleEditMode()" id="editToggleBtn">
+            ⚙️ Edit Mode
+        </button>
+        <div class="action-row edit-controls">
+            <button class="btn btn-primary" onclick="showAddGroupModal()">
+                + Group
+            </button>
+            <button class="btn btn-primary" onclick="showAddCategoryModal(null)">
+                + Cat
+            </button>
+            <button class="btn" onclick="openGistModal()" id="gistConnectBtn" title="Connect GitHub Gist">
+                � Connect Gist
+            </button>
+        </div>
+        <!-- Hidden Connect Button (Optional: Keep it hidden or remove completely as per user request 'Remove ConnectData.json') -->
+        <!-- User said 'Remove ConnectData.json', assuming removing the button from UI completely, 
+             but keeping functionality code in case needed later or triggered differently. 
+             If user wants to remove the FEATURE, I should remove JS too. 
+             For now, I'll remove the button from DOM as requested. -->
+    </div>
+</aside>
+
+<main>
+    <header>
+        <div class="header-left">
+            <h2 id="categoryTitle">All Tools</h2>
+        </div>
+
+        <div class="search-bar-trigger" onclick="openSearchModal()">
+            <span class="search-bar-icon">🔍</span>
+            <span class="search-bar-text">Search...</span>
+            <span class="search-bar-shortcut">Cmd+K</span>
+        </div>
+
+        <div class="controls">
+            <div class="view-controls">
+                <!-- Removed Export button as we now rely on local file sync -->
+            </div>
+            <div class="edit-controls">
+                <button class="btn btn-primary" onclick="showAddCardGroupModal()">+ Card Group</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="grid" id="cardGrid">
+        <!-- Generated by JS -->
+    </div>
+</main>
+
+<!-- Modals -->
+<div class="modal-overlay" id="cardGroupModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>Add Card Group</span>
+            <button class="btn-icon" onclick="closeModal('cardGroupModal')">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Group Name</label>
+            <input type="text" class="form-control" id="cardGroupNameInput" placeholder="e.g., Resources">
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('cardGroupModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCardGroup()">Save</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="groupModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>Add Group</span>
+            <button class="btn-icon" onclick="closeModal('groupModal')">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Group Name</label>
+            <input type="text" class="form-control" id="groupNameInput" placeholder="e.g., Development">
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('groupModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveGroup()">Save</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="categoryModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>Add Subcategory</span>
+            <button class="btn-icon" onclick="closeModal('categoryModal')">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Subcategory Name</label>
+            <input type="text" class="form-control" id="catNameInput" placeholder="e.g., Frontend">
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('categoryModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCategory()">Save</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="cardModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>Add Card</span>
+            <button class="btn-icon" onclick="closeModal('cardModal')">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" class="form-control" id="cardTitleInput" placeholder="Tool Name">
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" class="form-control" id="cardDescInput" placeholder="Short description...">
+        </div>
+        <div class="form-group">
+            <label>URL</label>
+            <input type="text" class="form-control" id="cardUrlInput" placeholder="https://...">
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('cardModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCard()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Gist Config Modal -->
+<div class="modal-overlay" id="gistModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>Configure GitHub Gist</span>
+            <button class="btn-icon" onclick="closeModal('gistModal')">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Gist ID</label>
+            <input type="text" class="form-control" id="gistIdInput" placeholder="e.g. 45bfae6a84d...">
+            <small style="color: var(--text-muted); display: block; margin-top: 4px;">The ID from your Gist URL</small>
+        </div>
+        <div class="form-group">
+            <label>Filename</label>
+            <input type="text" class="form-control" id="gistFilenameInput" value="nav_data.json">
+        </div>
+        <div class="form-group">
+            <label>Personal Access Token</label>
+            <input type="password" class="form-control" id="gistPatInput" placeholder="ghp_...">
+            <small style="color: var(--text-muted); display: block; margin-top: 4px;">Needs 'gist' scope</small>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('gistModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveGistConfig()">Connect</button>
+        </div>
+    </div>
+</div>
+
+<!-- Command Palette Modal -->
+<div class="modal-overlay" id="searchModal" onclick="closeSearchModal(event)">
+    <div class="search-palette" onclick="event.stopPropagation()">
+        <div class="search-header">
+            <input type="text" id="cmdSearchInput" placeholder="Type to search..." autocomplete="off">
+            <div class="search-shortcut">ESC</div>
+        </div>
+        <div class="search-results" id="cmdSearchResults">
+            <!-- Results injected here -->
+            <div class="search-empty">Type to search tools...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Data & State ---
+    const DEFAULT_DATA = [
+        {
+            id: 'g1',
+            name: 'Development',
+            children: [
+                {
+                    id: 'c1',
+                    name: 'Formatters',
+                    items: [
+                        { id: '101', title: 'JSON Formatter', desc: 'Format and validate JSON data', url: 'https://jsonformatter.org/' },
+                        { id: '102', title: 'Prettier', desc: 'Opinionated Code Formatter', url: 'https://prettier.io/' }
+                    ]
+                },
+                {
+                    id: 'c2',
+                    name: 'Utilities',
+                    items: [
+                        { id: '103', title: 'Regex101', desc: 'Test and debug regular expressions', url: 'https://regex101.com/' },
+                        { id: '104', title: 'Base64 Decode', desc: 'Decode and encode Base64 strings', url: 'https://www.base64decode.org/' }
+                    ]
+                }
+            ]
+        }
+    ];
+
+    let data = [];
+    let currentCategory = null; // ID of the selected subcategory (Level 2)
+    let isEditMode = false;
+    let targetGroupId = null; // For adding subcategory
+    let gistConfig = null; // { id, pat, filename }
+    let editingCardId = null; // ID of card being edited
+    
+    // --- Drag & Drop State ---
+    let draggedItem = null; // { type: 'group'|'cat', id: string, parentId: string }
+    
+    // --- Icons (IconPark Style) ---
+    const ICON_PATHS = {
+        'home': '<path d="M9 18V42H39V18L24 6L9 18Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'config': '<path d="M24 4V8M24 40V44M44 24H40M8 24H4M38.14 9.86L35.31 12.69M12.69 35.31L9.86 38.14M38.14 38.14L35.31 35.31M12.69 12.69L9.86 9.86M24 34C29.5228 34 34 29.5228 34 24C34 18.4772 29.5228 14 24 14C18.4772 14 14 18.4772 14 24C14 29.5228 18.4772 34 24 34Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'search': '<path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M33.2217 33.2217L41.707 41.707" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'star': '<path d="M24 4L30.18 16.51L44 18.52L34 28.26L36.36 42L24 35.5L11.64 42L14 28.26L4 18.52L17.82 16.51L24 4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'like': '<path d="M15 8C8.92487 8 4 12.9249 4 19C4 30 17 40 24 42.3262C31 40 44 30 44 19C44 12.9249 39.0751 8 33 8C29.2797 8 26.1341 9.85177 24.1292 12.5C22.0366 9.68233 18.7831 8 15 8Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'user': '<circle cx="24" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 44C42 34.0589 33.9411 26 24 26C14.0589 26 6 34.0589 6 44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'lock': '<rect x="12" y="22" width="24" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M19 22V15C19 12.2386 21.2386 10 24 10C26.7614 10 29 12.2386 29 15V22" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 30V34" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'time': '<path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M24.0083 12L24.0083 24.0083L32.4936 32.4936" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'lightning': '<path d="M19 4H29L24 20H37L15 44L20 28H8L19 4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>',
+        'fire': '<path d="M24 44C32.8366 44 40 36.8366 40 28C40 19.1634 31 15 24 4C17 15 8 19.1634 8 28C8 36.8366 15.1634 44 24 44Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 22V30" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'leaf': '<path d="M37 29.5C37 38 29.5 44 24 44C18.5 44 11 38 11 29.5C11 21 24 4 24 4C24 4 37 21 37 29.5Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 16V44" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'box': '<rect x="6" y="12" width="36" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M6 18H42" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 6L21 12H27L30 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'code': '<path d="M16 18L8 24L16 30" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 18L40 24L32 30" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 12L22 36" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+        'chart': '<path d="M6 36V42H42V36" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="24" width="6" height="12" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="14" width="6" height="22" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><rect x="32" y="6" width="6" height="30" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>',
+        'send': '<path d="M42 6L4 20L20 24L24 40L42 6Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M20 24L42 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
+    };
+
+    const ICON_KEYS = Object.keys(ICON_PATHS);
+
+    function getRandomIcon() {
+        const key = ICON_KEYS[Math.floor(Math.random() * ICON_KEYS.length)];
+        return `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">${ICON_PATHS[key]}</svg>`;
+    }
+
+    function getIconByTitle(title) {
+        if (!title) return getRandomIcon();
+        let hash = 0;
+        for (let i = 0; i < title.length; i++) {
+            hash = title.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % ICON_KEYS.length;
+        const key = ICON_KEYS[index];
+        return `<svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">${ICON_PATHS[key]}</svg>`;
+    }
+
+    function getFixedIcon(index = 14) {
+        const key = ICON_KEYS[index % ICON_KEYS.length];
+        return `<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">${ICON_PATHS[key]}</svg>`;
+    }
+
+    // --- Gist Integration ---
+    function openGistModal() {
+        document.getElementById('gistIdInput').value = gistConfig ? gistConfig.id : '';
+        document.getElementById('gistFilenameInput').value = gistConfig ? gistConfig.filename : 'nav_data.json';
+        document.getElementById('gistPatInput').value = gistConfig ? gistConfig.pat : '';
+        document.getElementById('gistModal').style.display = 'flex';
+    }
+
+    async function saveGistConfig() {
+        const id = document.getElementById('gistIdInput').value.trim();
+        const filename = document.getElementById('gistFilenameInput').value.trim();
+        const pat = document.getElementById('gistPatInput').value.trim();
+
+        if (!id) {
+            alert('Gist ID is required');
+            return;
+        }
+
+        const config = { id, filename: filename || 'nav_data.json', pat };
+        
+        // Test connection
+        const btn = document.querySelector('#gistModal .btn-primary');
+        const oldText = btn.innerText;
+        btn.innerText = 'Connecting...';
+        btn.disabled = true;
+
+        const content = await fetchGist(config);
+        if (content !== null) {
+            // Success
+            gistConfig = config;
+            await set('gistConfig', config);
+            
+            // If remote has data, ask to merge or overwrite? For now, we overwrite local if remote exists
+            try {
+                const parsed = JSON.parse(content);
+                data = migrateData(parsed);
+                localStorage.setItem('navData', JSON.stringify(data));
+                renderSidebar();
+                renderMain();
+                alert('Connected to Gist! Data loaded.');
+            } catch(e) {
+                // Remote might be empty or invalid, that's fine, we will overwrite it on next save
+                console.log('Remote content invalid or empty, keeping local data');
+            }
+            
+            updateGistButtonState(true);
+            closeModal('gistModal');
+        } else {
+            alert('Failed to fetch Gist. Check ID and Token.');
+        }
+        
+        btn.innerText = oldText;
+        btn.disabled = false;
+    }
+
+    async function fetchGist(config) {
+        try {
+            const headers = {};
+            if (config.pat) headers['Authorization'] = `token ${config.pat}`;
+            
+            const res = await fetch(`https://api.github.com/gists/${config.id}`, { headers });
+            if (!res.ok) return null;
+            
+            const json = await res.json();
+            const file = json.files[config.filename];
+            return file ? file.content : null;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+
+    async function updateGist(content) {
+        if (!gistConfig || !gistConfig.pat) return; // Cannot write without PAT
+        
+        try {
+            const files = {};
+            files[gistConfig.filename] = { content: content };
+            
+            await fetch(`https://api.github.com/gists/${gistConfig.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${gistConfig.pat}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ files })
+            });
+            console.log('Gist updated');
+        } catch (e) {
+            console.error('Gist update failed', e);
+        }
+    }
+
+    function updateGistButtonState(connected) {
+        const btn = document.getElementById('gistConnectBtn');
+        if (btn) {
+            if (connected) {
+                btn.classList.add('btn-primary');
+                btn.title = 'Connected to Gist: ' + gistConfig.id.substring(0, 6) + '...';
+                btn.innerText = '🐱 Connected';
+            } else {
+                btn.classList.remove('btn-primary');
+                btn.title = 'Connect GitHub Gist';
+                btn.innerText = '🐱 Connect Gist';
+            }
+        }
+    }
+
+    // --- Init ---
+    async function init() {
+        // Try to load from localStorage first for immediate render
+        const saved = localStorage.getItem('navData');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                data = migrateData(parsed);
+            } catch (e) {
+                data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+            }
+        } else {
+            data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+
+        // Restore configs
+        try {
+            gistConfig = await get('gistConfig');
+        } catch(e) {}
+
+        // Handle Gist Sync
+        if (gistConfig) {
+             updateGistButtonState(true);
+             // Sync
+             fetchGist(gistConfig).then(content => {
+                 if (content) {
+                     try {
+                         const parsed = JSON.parse(content);
+                         data = migrateData(parsed);
+                         localStorage.setItem('navData', JSON.stringify(data));
+                         renderSidebar();
+                         renderMain();
+                     } catch(e) {}
+                 }
+             }).catch(e => console.error(e));
+        } else {
+             updateGistButtonState(false);
+        }
+
+        // Set default selection if none
+        if (!currentCategory) {
+            // Check hash first
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                // Verify if hash exists in data
+                let exists = false;
+                const check = (list) => {
+                    for (const item of list) {
+                        if (item.id === hash) return true;
+                        if (item.children && check(item.children)) return true;
+                    }
+                    return false;
+                };
+                if (check(data)) {
+                    currentCategory = hash;
+                }
+            }
+            
+            // If still no currentCategory, fallback to first
+            if (!currentCategory && data.length > 0) {
+                 // Find first available category
+                 let firstId = null;
+                 const find = (list) => {
+                     for(let item of list) {
+                         if(item.children && item.children.length > 0) return item.children[0].id;
+                         if(!item.children) return item.id;
+                     }
+                     return null;
+                 }
+                 currentCategory = find(data);
+            }
+        }
+
+        renderSidebar();
+        renderMain();
+    }
+    
+    // Handle browser back/forward
+    window.onhashchange = () => {
+        const hash = window.location.hash.slice(1);
+        if (hash && hash !== currentCategory) {
+             let exists = false;
+             const check = (list) => {
+                 for (const item of list) {
+                     if (item.id === hash) return true;
+                     if (item.children && check(item.children)) return true;
+                 }
+                 return false;
+             };
+             if (check(data)) {
+                 currentCategory = hash;
+                 renderSidebar();
+                 renderMain();
+             }
+        }
+    };
+
+    function migrateData(parsed) {
+        if (!Array.isArray(parsed)) return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        
+        // Check if migration is needed (Level 2 to Level 3)
+        // Check a few items to see if they have 'items' but no 'item_groups'
+        const needsMigration = parsed.some(item => {
+            if (item.children) {
+                 return item.children.some(cat => cat.items && !cat.item_groups);
+            } else {
+                 return item.items && !item.item_groups;
+            }
+        });
+
+        if (!needsMigration) return parsed;
+
+        // Migrate: Move 'items' into a default 'item_groups'
+        parsed.forEach(item => {
+            if (item.children) {
+                item.children.forEach(cat => {
+                    if (cat.items && !cat.item_groups) {
+                        cat.item_groups = [{
+                            group_name: 'Default',
+                            items: cat.items
+                        }];
+                        delete cat.items;
+                    }
+                });
+            } else {
+                if (item.items && !item.item_groups) {
+                    item.item_groups = [{
+                        group_name: 'Default',
+                        items: item.items
+                    }];
+                    delete item.items;
+                }
+            }
+        });
+        
+        return parsed;
+    }
+
+    // --- IndexedDB Helper ---
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('MyNavDB', 1);
+            request.onupgradeneeded = (e) => {
+                e.target.result.createObjectStore('settings');
+            };
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = (e) => reject(e);
+        });
+    }
+
+    async function get(key) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['settings'], 'readonly');
+            const store = transaction.objectStore('settings');
+            const request = store.get(key);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async function set(key, value) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['settings'], 'readwrite');
+            const store = transaction.objectStore('settings');
+            const request = store.put(value, key);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // --- File System Access API ---
+
+
+    // --- Search (Command Palette) ---
+    let searchSelectedIndex = 0;
+    let filteredResults = [];
+
+    function openSearchModal() {
+        document.getElementById('searchModal').style.display = 'flex';
+        const input = document.getElementById('cmdSearchInput');
+        input.value = '';
+        input.focus();
+        renderSearchResults('');
+    }
+
+    function closeSearchModal(e) {
+        // Close only if clicking overlay or explicitly called
+        if (!e || e.target.id === 'searchModal') {
+            document.getElementById('searchModal').style.display = 'none';
+        }
+    }
+
+    // Bind Shortcut
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            openSearchModal();
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('searchModal').style.display = 'none';
+        }
+    });
+
+    // Input Handler
+    document.getElementById('cmdSearchInput').addEventListener('input', (e) => {
+        renderSearchResults(e.target.value);
+    });
+
+    // Keyboard Navigation
+    document.getElementById('cmdSearchInput').addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            searchSelectedIndex = (searchSelectedIndex + 1) % filteredResults.length;
+            updateSearchSelection();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            searchSelectedIndex = (searchSelectedIndex - 1 + filteredResults.length) % filteredResults.length;
+            updateSearchSelection();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (filteredResults[searchSelectedIndex]) {
+                const item = filteredResults[searchSelectedIndex];
+                if (!isEditMode) window.open(item.url, '_blank');
+                document.getElementById('searchModal').style.display = 'none';
+            }
+        }
+    });
+
+    function renderSearchResults(query) {
+        query = query.trim().toLowerCase();
+        const container = document.getElementById('cmdSearchResults');
+        container.innerHTML = '';
+        searchSelectedIndex = 0;
+
+        // Flatten all cards
+        const allCards = [];
+        data.forEach(item => {
+            const processCat = (cat) => {
+                if (cat.item_groups) {
+                    cat.item_groups.forEach(group => {
+                        group.items.forEach(card => {
+                            allCards.push(card);
+                        });
+                    });
+                }
+            };
+            if (item.children) item.children.forEach(processCat);
+            else processCat(item);
+        });
+
+        if (!query) {
+             // Show recent or some hint?
+             filteredResults = allCards.slice(0, 5); // Show first 5 or recent
+        } else {
+             filteredResults = allCards.filter(card => 
+                card.title.toLowerCase().includes(query) || 
+                card.desc.toLowerCase().includes(query)
+            );
+        }
+
+        if (filteredResults.length === 0) {
+            container.innerHTML = '<div class="search-empty">No results found</div>';
+            return;
+        }
+
+        filteredResults.forEach((item, index) => {
+            const el = document.createElement('div');
+            el.className = `search-item ${index === 0 ? 'selected' : ''}`;
+            el.onclick = () => {
+                if (!isEditMode) window.open(item.url, '_blank');
+                document.getElementById('searchModal').style.display = 'none';
+            };
+            el.onmouseenter = () => {
+                searchSelectedIndex = index;
+                updateSearchSelection();
+            };
+            
+            // Random icon not ideal for consistency but matches card view logic
+            // In a real app, icon should be stored in item data
+            const icon = '🔧'; 
+
+            el.innerHTML = `
+                <div class="search-item-icon">${icon}</div>
+                <div class="search-item-content">
+                    <div class="search-item-title">${item.title}</div>
+                    <div class="search-item-desc">${item.desc}</div>
+                </div>
+                <div style="font-size: 10px; color: #52525b; border: 1px solid #3f3f46; padding: 2px 4px; border-radius: 4px;">Jump</div>
+            `;
+            container.appendChild(el);
+        });
+    }
+
+    function updateSearchSelection() {
+        const items = document.querySelectorAll('.search-item');
+        items.forEach((item, index) => {
+            if (index === searchSelectedIndex) {
+                item.classList.add('selected');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+
+    // --- Rendering ---
+    function renderSidebar() {
+        const list = document.getElementById('navList');
+        list.innerHTML = '';
+
+        data.forEach(item => {
+            const isGroup = !!item.children;
+            
+            if (isGroup) {
+                renderGroupItem(item, list);
+            } else {
+                renderCategoryItem(item, list, null);
+            }
+        });
+    }
+
+    function renderGroupItem(group, container) {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'nav-group';
+        
+        // Drag Group Logic
+        if (isEditMode) {
+            groupDiv.draggable = true;
+            groupDiv.ondragstart = (e) => handleDragStart(e, 'group', group.id);
+            groupDiv.ondragover = (e) => handleDragOver(e, 'group');
+            groupDiv.ondrop = (e) => handleDrop(e, 'group', group.id);
+            groupDiv.ondragleave = (e) => handleDragLeave(e);
+        }
+
+        // Group Header
+        const header = document.createElement('div');
+        header.className = 'nav-group-header';
+        header.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                ${getFixedIcon(12)}
+                <span ${isEditMode ? `ondblclick="startRename(event, 'group', '${group.id}')" title="Double click to rename" style="cursor: text;"` : ''}>${group.name}</span>
+            </div>
+            <div class="group-actions">
+                <button class="btn-icon-sm" onclick="showAddCategoryModal('${group.id}')" title="Add Subcategory">+</button>
+                <button class="btn-icon-sm delete" onclick="deleteGroup('${group.id}')" title="Delete Group">×</button>
+            </div>
+        `;
+        groupDiv.appendChild(header);
+
+        // Sub Items
+        group.children.forEach(cat => {
+            renderCategoryItem(cat, groupDiv, group.id);
+        });
+
+        container.appendChild(groupDiv);
+    }
+
+    function renderCategoryItem(cat, container, parentId) {
+        const item = document.createElement('div');
+        item.className = `nav-sub-item ${currentCategory === cat.id ? 'active' : ''}`;
+        
+        // If it's a root category, style it slightly differently or keep same?
+        // Let's keep same style but maybe add 'nav-root-item' class if needed.
+        if (!parentId) {
+            item.style.paddingLeft = '24px'; // Reset padding for root items to look like top level
+            item.style.fontWeight = '500';
+        }
+
+        item.onclick = () => {
+            if (!isEditMode) {
+                currentCategory = cat.id;
+                // Update URL hash
+                window.location.hash = cat.id;
+                renderSidebar();
+                renderMain();
+            }
+        };
+        
+        // Drag Category Logic
+        if (isEditMode) {
+            item.draggable = true;
+            item.ondragstart = (e) => handleDragStart(e, 'cat', cat.id, parentId);
+            item.ondragover = (e) => handleDragOver(e, 'cat'); // Can drop cat on cat
+            item.ondrop = (e) => handleDrop(e, 'cat', cat.id, parentId);
+            item.ondragleave = (e) => handleDragLeave(e);
+        }
+
+        const iconHtml = getFixedIcon(14);
+
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; flex: 1; overflow: hidden;">
+                ${iconHtml}
+                <span ${isEditMode ? `ondblclick="startRename(event, 'cat', '${cat.id}', '${parentId || ''}')" title="Double click to rename" style="cursor: text; flex: 1;"` : ''}>${cat.name}</span>
+            </div>
+            ${isEditMode ? `<button class="btn-icon-sm delete" onclick="deleteCategory('${parentId || 'root'}', '${cat.id}', event)">×</button>` : ''}
+        `;
+        container.appendChild(item);
+    }
+
+    function renderMain() {
+        const grid = document.getElementById('cardGrid');
+        const title = document.getElementById('categoryTitle');
+        grid.innerHTML = '';
+
+        // Find current category object
+        let category = null;
+        
+        // Search in groups and root items
+        for (const item of data) {
+            if (item.children) {
+                // It's a group
+                const found = item.children.find(c => c.id === currentCategory);
+                if (found) {
+                    category = found;
+                    break;
+                }
+            } else {
+                // It's a root category
+                if (item.id === currentCategory) {
+                    category = item;
+                    break;
+                }
+            }
+        }
+
+        if (!category) {
+            title.innerText = 'Select a Category';
+            return;
+        }
+
+        title.innerText = category.name;
+
+        if (category.item_groups) {
+            category.item_groups.forEach((group, groupIndex) => {
+                // Render Group Header
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'card-group-header';
+                groupHeader.innerHTML = `
+                    <span ${isEditMode ? `ondblclick="startRename(event, 'cardGroup', '${groupIndex}', '${category.id}')" title="Double click to rename" style="cursor: text;"` : ''}>${group.group_name}</span>
+                    ${isEditMode ? `
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-icon-sm" onclick="showAddCardModal(${groupIndex})" title="Add Card to this Group">+</button>
+                            <button class="delete-group-btn" onclick="deleteCardGroup('${category.id}', ${groupIndex})">Delete Group</button>
+                        </div>
+                    ` : ''}
+                `;
+                grid.appendChild(groupHeader);
+
+                // Render Items
+                group.items.forEach(item => {
+                    const card = document.createElement('a');
+                    card.className = 'card';
+                    card.href = isEditMode ? 'javascript:void(0)' : item.url;
+                    card.target = isEditMode ? '' : '_blank';
+                    
+                    const icon = getIconByTitle(item.title);
+    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div class="card-icon">${icon}</div>
+                            <div class="card-title">${item.title}</div>
+                        </div>
+                        <div class="card-desc">${item.desc}</div>
+                        <div class="card-actions">
+                            <button class="action-btn edit" onclick="editCard('${item.id}', event)" title="Edit">✎</button>
+                            <button class="action-btn delete" onclick="deleteCard('${item.id}', event)" title="Delete">✕</button>
+                        </div>
+                    `;
+                    
+                    // Drag Card Logic
+                    if (isEditMode) {
+                        card.draggable = true;
+                        card.ondragstart = (e) => handleDragStart(e, 'card', item.id);
+                        card.ondragover = (e) => handleDragOver(e, 'card');
+                        card.ondrop = (e) => handleDrop(e, 'card', item.id, groupIndex); // Pass group index
+                        card.ondragleave = (e) => handleDragLeave(e);
+                    }
+                    
+                    grid.appendChild(card);
+                });
+            });
+        }
+    }
+
+    // --- Drag & Drop Handlers ---
+    function handleDragStart(e, type, id, parentId = null) {
+        draggedItem = { type, id, parentId };
+        e.target.classList.add('draggable-source');
+        e.stopPropagation(); // Prevent bubbling
+    }
+
+    function handleDragOver(e, targetType) {
+        e.preventDefault(); // Allow drop
+        e.stopPropagation();
+
+        // Only allow if types match or (TODO: allow cross-group)
+        // For now, only Group->Group or Cat->Cat
+        if (!draggedItem) return;
+        if (draggedItem.type !== targetType) return;
+
+        const target = e.currentTarget;
+        
+        // Visual feedback logic
+        const rect = target.getBoundingClientRect();
+        
+        target.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-left', 'drag-over-right');
+        
+        if (targetType === 'card') {
+            const offsetX = e.clientX - rect.left;
+            if (offsetX < rect.width / 2) {
+                target.classList.add('drag-over-left');
+            } else {
+                target.classList.add('drag-over-right');
+            }
+        } else {
+            const offsetY = e.clientY - rect.top;
+            if (offsetY < rect.height / 2) {
+                target.classList.add('drag-over-top');
+            } else {
+                target.classList.add('drag-over-bottom');
+            }
+        }
+    }
+
+    function handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-left', 'drag-over-right');
+    }
+
+    function handleDrop(e, targetType, targetId, targetParentId = null) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const target = e.currentTarget;
+        target.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over-left', 'drag-over-right');
+        
+        if (!draggedItem || draggedItem.type !== targetType) return;
+        if (draggedItem.id === targetId) return; // Dropped on self
+
+        // Calculate position
+        const rect = target.getBoundingClientRect();
+        let placeAfter = false;
+        
+        if (targetType === 'card') {
+             const offsetX = e.clientX - rect.left;
+             placeAfter = offsetX >= rect.width / 2;
+        } else {
+             const offsetY = e.clientY - rect.top;
+             placeAfter = offsetY >= rect.height / 2;
+        }
+
+        if (targetType === 'group') {
+            reorderGroups(draggedItem.id, targetId, placeAfter);
+        } else if (targetType === 'cat') {
+            reorderCategories(draggedItem.id, draggedItem.parentId, targetId, targetParentId, placeAfter);
+        } else if (targetType === 'card') {
+            // targetParentId here is actually groupIndex
+            reorderCards(draggedItem.id, targetId, targetParentId, placeAfter);
+        }
+        
+        draggedItem = null;
+        renderSidebar(); // Re-render to clear classes (and renderMain inside if needed, but sidebar re-render triggers main if active)
+        renderMain(); // Force main re-render for cards
+    }
+
+    function reorderGroups(sourceId, targetId, after) {
+        const sourceIndex = data.findIndex(g => g.id === sourceId);
+        if (sourceIndex === -1) return;
+        
+        const [group] = data.splice(sourceIndex, 1);
+        
+        // Find target index (it might have shifted if source was before target)
+        let targetIndex = data.findIndex(g => g.id === targetId);
+        if (after) targetIndex++;
+        
+        data.splice(targetIndex, 0, group);
+        save();
+    }
+
+    function reorderCategories(sourceId, sourceParentId, targetId, targetParentId, after) {
+        // Resolve Source List and Item
+        let sourceList = null;
+        if (!sourceParentId) {
+            sourceList = data; // Root
+        } else {
+            const group = data.find(g => g.id === sourceParentId);
+            if (group) sourceList = group.children;
+        }
+
+        if (!sourceList) return;
+        const sourceIndex = sourceList.findIndex(c => c.id === sourceId);
+        if (sourceIndex === -1) return;
+        
+        // Remove from source
+        const [cat] = sourceList.splice(sourceIndex, 1);
+        
+        // Resolve Target List
+        let targetList = null;
+        if (!targetParentId) {
+            targetList = data; // Root
+        } else {
+            const group = data.find(g => g.id === targetParentId);
+            if (group) targetList = group.children;
+        }
+        
+        if (!targetList) {
+            // Fallback: put back in source if target invalid
+            sourceList.splice(sourceIndex, 0, cat);
+            return;
+        }
+
+        // Insert into target
+        // If we moved across lists, targetIndex isn't affected by removal unless it was same list
+        let targetIndex = targetList.findIndex(c => c.id === targetId);
+        
+        // If same list and we removed an item before target, targetIndex shifted down
+        if (sourceList === targetList && sourceIndex < targetIndex) {
+            // targetIndex is already correct because we found it AFTER removal? 
+            // NO, we found it by ID. If we search by ID in the modified list, we get the new index.
+            // So we don't need manual adjustment for removal, just rely on findIndex on the modified list.
+        }
+        
+        if (after) targetIndex++;
+        
+        // If targetIndex is -1 (shouldn't happen if targetId exists), append?
+        if (targetIndex === -1) targetIndex = targetList.length;
+
+        targetList.splice(targetIndex, 0, cat);
+        save();
+    }
+
+    function reorderCards(sourceId, targetId, targetGroupIndex, after) {
+        // Find current category
+        let category = null;
+        for (const item of data) {
+            if (item.children) {
+                const cat = item.children.find(c => c.id === currentCategory);
+                if (cat) { category = cat; break; }
+            } else {
+                if (item.id === currentCategory) { category = item; break; }
+            }
+        }
+
+        if (!category || !category.item_groups) return;
+
+        // Find Source Card and Group
+        let sourceGroup = null;
+        let sourceCardIndex = -1;
+        
+        for (const group of category.item_groups) {
+            const idx = group.items.findIndex(i => i.id === sourceId);
+            if (idx !== -1) {
+                sourceGroup = group;
+                sourceCardIndex = idx;
+                break;
+            }
+        }
+
+        if (!sourceGroup || sourceCardIndex === -1) return;
+
+        // Remove from source
+        const [card] = sourceGroup.items.splice(sourceCardIndex, 1);
+
+        // Find Target Group
+        // targetGroupIndex is passed from drop event
+        let targetGroup = category.item_groups[targetGroupIndex];
+        
+        if (!targetGroup) {
+             // Fallback: put back
+             sourceGroup.items.splice(sourceCardIndex, 0, card);
+             return;
+        }
+
+        // Insert
+        let targetCardIndex = targetGroup.items.findIndex(i => i.id === targetId);
+        
+        // Adjust index if moving within same list
+        // if (sourceGroup === targetGroup && sourceCardIndex < targetCardIndex) { } // handled naturally by findIndex on modified array? 
+        // Actually, if we remove first, indices shift. 
+        // If targetId is not found (e.g. dropped on group header?), append to end?
+        // But drop event comes from a card, so targetId should exist.
+        
+        if (after) targetCardIndex++;
+        if (targetCardIndex === -1) targetCardIndex = targetGroup.items.length;
+
+        targetGroup.items.splice(targetCardIndex, 0, card);
+        save();
+    }
+
+    // --- Card Group Actions ---
+    function showAddCardGroupModal() {
+        if (!currentCategory) {
+            alert('Please select a category first.');
+            return;
+        }
+        document.getElementById('cardGroupNameInput').value = '';
+        document.getElementById('cardGroupModal').style.display = 'flex';
+    }
+
+    function saveCardGroup() {
+        const name = document.getElementById('cardGroupNameInput').value.trim();
+        if (!name) return;
+
+        // Find current category
+        let category = null;
+        for (const item of data) {
+            if (item.children) {
+                const cat = item.children.find(c => c.id === currentCategory);
+                if (cat) { category = cat; break; }
+            } else {
+                if (item.id === currentCategory) { category = item; break; }
+            }
+        }
+
+        if (category) {
+            if (!category.item_groups) category.item_groups = [];
+            category.item_groups.push({
+                group_name: name,
+                items: []
+            });
+            save();
+            renderMain();
+            closeModal('cardGroupModal');
+        }
+    }
+
+    function deleteCardGroup(catId, groupIndex) {
+        if (!confirm('Delete this card group and all its cards?')) return;
+        
+        let category = null;
+        for (const item of data) {
+            if (item.children) {
+                const cat = item.children.find(c => c.id === catId);
+                if (cat) { category = cat; break; }
+            } else {
+                if (item.id === catId) { category = item; break; }
+            }
+        }
+        
+        if (category && category.item_groups) {
+            category.item_groups.splice(groupIndex, 1);
+            save();
+            renderMain();
+        }
+    }
+
+    // --- Renaming ---
+    function startRename(e, type, id, parentId) {
+        if (!isEditMode) return;
+        e.stopPropagation();
+        
+        const span = e.target;
+        const currentName = span.innerText;
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.className = 'form-control'; // reuse existing class
+        input.style.padding = '2px 6px';
+        input.style.fontSize = 'inherit';
+        input.style.height = 'auto';
+        input.style.width = '100%';
+        input.style.background = '#27272a';
+        input.style.border = '1px solid #10b981';
+        input.style.color = '#fff';
+        
+        const finish = () => finishRename(type, id, parentId, input.value);
+
+        input.onblur = finish;
+        input.onkeydown = (ev) => {
+            if (ev.key === 'Enter') {
+                input.blur();
+            }
+            if (ev.key === 'Escape') {
+                // Cancel: Just re-render to restore state
+                renderSidebar();
+            }
+        };
+        
+        span.innerHTML = '';
+        span.appendChild(input);
+        input.focus();
+    }
+
+    function finishRename(type, id, parentId, newName) {
+        newName = newName.trim();
+        if (!newName) {
+            renderSidebar(); // Revert if empty
+            return;
+        }
+
+        if (type === 'group') {
+            const group = data.find(g => g.id === id);
+            if (group) group.name = newName;
+        } else if (type === 'cat') {
+            let cat;
+            if (parentId) {
+                const group = data.find(g => g.id === parentId);
+                if (group) cat = group.children.find(c => c.id === id);
+            } else {
+                cat = data.find(c => c.id === id); // Root cat
+            }
+            if (cat) cat.name = newName;
+        } else if (type === 'cardGroup') {
+            // id is groupIndex, parentId is catId
+            let cat;
+            for (const item of data) {
+                if (item.children) {
+                    const found = item.children.find(c => c.id === parentId);
+                    if (found) { cat = found; break; }
+                } else {
+                    if (item.id === parentId) { cat = item; break; }
+                }
+            }
+            
+            if (cat && cat.item_groups && cat.item_groups[id]) {
+                cat.item_groups[id].group_name = newName;
+            }
+        }
+
+        save();
+        renderSidebar();
+        renderMain(); // Update title if selected
+    }
+
+    // --- Actions ---
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        document.body.classList.toggle('edit-mode', isEditMode);
+        document.getElementById('editToggleBtn').innerText = isEditMode ? '✅ Done' : '⚙️ Edit Mode';
+        renderSidebar(); 
+        renderMain();
+    }
+
+    // Group Actions
+    function showAddGroupModal() {
+        document.getElementById('groupNameInput').value = '';
+        document.getElementById('groupModal').style.display = 'flex';
+    }
+
+    function saveGroup() {
+        const name = document.getElementById('groupNameInput').value.trim();
+        if (!name) return;
+
+        data.push({
+            id: 'g_' + Date.now(),
+            name: name,
+            children: []
+        });
+        save();
+        closeModal('groupModal');
+        renderSidebar();
+    }
+
+    function deleteGroup(id) {
+        if (!confirm('Delete this group and all its subcategories?')) return;
+        data = data.filter(g => g.id !== id);
+        validateSelection();
+        save();
+        renderSidebar();
+        renderMain();
+    }
+
+    // Category Actions
+    function showAddCategoryModal(groupId) {
+        targetGroupId = groupId; // If null, means root
+        document.getElementById('catNameInput').value = '';
+        document.getElementById('categoryModal').style.display = 'flex';
+    }
+
+    function saveCategory() {
+        const name = document.getElementById('catNameInput').value.trim();
+        if (!name) return;
+
+        const newCat = {
+            id: 'c_' + Date.now(),
+            name: name,
+            items: []
+        };
+
+        if (targetGroupId) {
+            // Add to Group
+            const group = data.find(g => g.id === targetGroupId);
+            if (group) {
+                group.children.push(newCat);
+                currentCategory = newCat.id;
+            }
+        } else {
+            // Add to Root
+            data.push(newCat);
+            currentCategory = newCat.id;
+        }
+
+        save();
+        renderSidebar();
+        renderMain();
+        closeModal('categoryModal');
+    }
+
+    function deleteCategory(groupId, catId, event) {
+        event.stopPropagation();
+        if (!confirm('Delete this category?')) return;
+
+        if (groupId === 'root') {
+            data = data.filter(c => c.id !== catId);
+        } else {
+            const group = data.find(g => g.id === groupId);
+            if (group) {
+                group.children = group.children.filter(c => c.id !== catId);
+            }
+        }
+        
+        validateSelection();
+        save();
+        renderSidebar();
+        renderMain();
+    }
+
+    // Card Actions
+    let targetCardGroupIndex = 0;
+
+    function showAddCardModal(groupIndex = 0) {
+        if (!currentCategory) {
+            alert('Please select a category first.');
+            return;
+        }
+        editingCardId = null;
+        targetCardGroupIndex = groupIndex;
+        document.querySelector('#cardModal .modal-header span').innerText = 'Add Card';
+        document.getElementById('cardTitleInput').value = '';
+        document.getElementById('cardDescInput').value = '';
+        document.getElementById('cardUrlInput').value = '';
+        document.getElementById('cardModal').style.display = 'flex';
+    }
+
+    function editCard(id, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Find current category object
+        let category = null;
+        for (const item of data) {
+            if (item.children) {
+                const cat = item.children.find(c => c.id === currentCategory);
+                if (cat) { category = cat; break; }
+            } else {
+                if (item.id === currentCategory) { category = item; break; }
+            }
+        }
+        
+        if (category && category.item_groups) {
+            category.item_groups.forEach((group, index) => {
+                const card = group.items.find(i => i.id === id);
+                if (card) {
+                    editingCardId = id;
+                    targetCardGroupIndex = index;
+                    
+                    document.querySelector('#cardModal .modal-header span').innerText = 'Edit Card';
+                    document.getElementById('cardTitleInput').value = card.title;
+                    document.getElementById('cardDescInput').value = card.desc;
+                    document.getElementById('cardUrlInput').value = card.url;
+                    document.getElementById('cardModal').style.display = 'flex';
+                }
+            });
+        }
+    }
+
+    function saveCard() {
+        const title = document.getElementById('cardTitleInput').value.trim();
+        const desc = document.getElementById('cardDescInput').value.trim();
+        const url = document.getElementById('cardUrlInput').value.trim();
+
+        if (!title || !url) {
+            alert('Title and URL are required');
+            return;
+        }
+
+        // Find current category
+        for (const item of data) {
+            let cat = null;
+            if (item.children) {
+                cat = item.children.find(c => c.id === currentCategory);
+            } else {
+                if (item.id === currentCategory) cat = item;
+            }
+            
+            if (cat) {
+                // Ensure groups exist
+                if (!cat.item_groups || cat.item_groups.length === 0) {
+                    cat.item_groups = [{ group_name: 'Default', items: [] }];
+                    targetCardGroupIndex = 0;
+                }
+                
+                // Ensure target index is valid
+                if (!cat.item_groups[targetCardGroupIndex]) {
+                    targetCardGroupIndex = 0; // Fallback
+                }
+                
+                if (editingCardId) {
+                    // Update existing
+                    let found = false;
+                    cat.item_groups.forEach(group => {
+                        const card = group.items.find(i => i.id === editingCardId);
+                        if (card) {
+                            card.title = title;
+                            card.desc = desc;
+                            card.url = url;
+                            found = true;
+                        }
+                    });
+                } else {
+                    // Create new
+                    cat.item_groups[targetCardGroupIndex].items.push({
+                        id: 'i_' + Date.now(),
+                        title,
+                        desc,
+                        url
+                    });
+                }
+                break;
+            }
+        }
+        save();
+        renderMain();
+        closeModal('cardModal');
+        editingCardId = null;
+    }
+
+    function deleteCard(itemId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!confirm('Delete this card?')) return;
+
+        for (const item of data) {
+            let cat = null;
+            if (item.children) {
+                const found = item.children.find(c => c.id === currentCategory);
+                // We need to find the category that CONTAINS the card, not just currentCategory
+                // But typically we delete from current view. 
+                // However, user might delete from search result later? (No search yet)
+                // Let's assume currentCategory for now, or search globally if robust.
+                // The original code used currentCategory. Let's stick to searching inside currentCategory first.
+                if (found) cat = found;
+            } else {
+                if (item.id === currentCategory) cat = item;
+            }
+            
+            // If we are just iterating data, we should probably search ALL categories if we want to be safe,
+            // but the original code logic implies we only operate on current view.
+            // Let's keep it robust by searching the cat found above.
+            
+            if (cat && cat.item_groups) {
+                for(const group of cat.item_groups) {
+                    const idx = group.items.findIndex(i => i.id === itemId);
+                    if (idx !== -1) {
+                        group.items.splice(idx, 1);
+                        save();
+                        renderMain();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // Helper: Ensure currentCategory is valid
+    function validateSelection() {
+        // Check if currentCategory still exists
+        let exists = false;
+        
+        const check = (list) => {
+            for (const item of list) {
+                if (item.id === currentCategory) return true;
+                if (item.children && check(item.children)) return true;
+            }
+            return false;
+        };
+        
+        exists = check(data);
+
+        if (!exists) {
+            // Find first available category
+            const findFirst = (list) => {
+                for (const item of list) {
+                    if (item.children) { // Group
+                        if (item.children.length > 0) return item.children[0].id;
+                    } else { // Root Category
+                        return item.id;
+                    }
+                }
+                return null;
+            };
+            
+            currentCategory = findFirst(data);
+        }
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // --- Persistence ---
+    async function save() {
+        // 1. Save to localStorage (always success)
+        localStorage.setItem('navData', JSON.stringify(data));
+        
+        // 2. Save to Gist if connected
+        if (gistConfig) {
+            updateGist(JSON.stringify(data, null, 2));
+        }
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "nav_data.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    // Start
+    init();
+
+</script>
 </body>
 </html>
